@@ -2,6 +2,14 @@
   <img src="https://i.ibb.co/Q3h2hsrf/image.png" alt="Steam Badges - Filter Drops Remaining" width="150">
 </p>
 
+## Latest Update — v1.7.0
+
+Added a new **Steam Search bulk "Add to Cart" selection UI**.
+
+* Select multiple games directly from Steam search results.
+* Add all selected games to your cart in bulk.
+* Selections are saved persistently, allowing them to remain available while browsing and navigating through search results.
+
 # Steam Badges - Filter Drops Remaining
 
 Userscript for **Violentmonkey** and **Tampermonkey** that adds a filter to Steam's badges page to hide games with no card drops remaining.
