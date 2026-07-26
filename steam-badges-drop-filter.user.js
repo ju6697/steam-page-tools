@@ -8,7 +8,7 @@
 // @match        https://steamcommunity.com/id/*/badges*
 // @match        https://steamcommunity.com/profiles/*/badges*
 // @match        https://store.steampowered.com/search/*
-// @match        https://store.steampowered.com/search?*
+// @match        https://store.steampowered.com/search*
 // @grant        none
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB4PSIzIiB5PSI3IiB3aWR0aD0iMTciIGhlaWdodD0iMjMiIHJ4PSIzIiBmaWxsPSIjMWIyODM4IiBzdHJva2U9IiM2NmMwZjQiIHN0cm9rZS13aWR0aD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTAgMTEuNSAxOC41KSIvPgo8cmVjdCB4PSIxMSIgeT0iMyIgd2lkdGg9IjE3IiBoZWlnaHQ9IjIzIiByeD0iMyIgZmlsbD0iIzJhNDc1ZSIgc3Ryb2tlPSIjNjZjMGY0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8Y2lyY2xlIGN4PSIxOS41IiBjeT0iMTQuNSIgcj0iMyIgZmlsbD0iIzY2YzBmNCIvPgo8L3N2Zz4K
 // @updateURL    https://raw.githubusercontent.com/x0697x/steam-badges-drop-filter/main/steam-badges-drop-filter.user.js
