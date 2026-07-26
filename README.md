@@ -16,9 +16,12 @@ Added a new **Steam Search bulk "Add to Cart" selection UI**.
 
 Userscript for **Violentmonkey** and **Tampermonkey** that adds a filter to Steam's badges page to hide games with no card drops remaining.
 
-<img src="https://i.ibb.co/1JJYW5hg/image.png" alt="Steam Badges Filter Screenshot">
-
 ## Install
+
+Choose your userscript manager:
+
+* [Violentmonkey](#violentmonkey)
+* [Tampermonkey](#tampermonkey)
 
 ### Violentmonkey
 
@@ -37,11 +40,12 @@ https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejag
 ```text
 https://raw.githubusercontent.com/x0697x/steam-badges-drop-filter/main/steam-badges-drop-filter.user.js
 ```
+
 5. Click **Install**.
 
 <img src="https://i.ibb.co/d0QCfrs6/image.png" alt="Violentmonkey Install">
 
-6. Enable **Allow User Scripts** in extension **Details**
+6. Enable **Allow User Scripts** in extension **Details**.
 
 <img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Details">
 <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts">
@@ -64,7 +68,7 @@ https://greasyfork.org/en/scripts/588294-steam-badges-filter-drops-remaining
 
 <img src="https://i.ibb.co/jkcX0Xqx/image.png" alt="Tampermonkey Install">
 
-3. Enable **Allow User Scripts** in extension **Details**
+3. Enable **Allow User Scripts** in extension **Details**.
 
 <img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Details">
 <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts">
