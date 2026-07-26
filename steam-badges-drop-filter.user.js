@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam Badges - Filter Drops Remaining
 // @namespace    local.steam-badges-drop-filter
-// @version      1.7.0
+// @version      1.7.1
 // @description  Adds a toggle on the Steam badges page to show only games with card drops remaining, checked across every page, independent of interface language, styled with Steam's own button component. Also adds bulk-select checkboxes and a matching Add to Cart button on Steam store search results pages, with the selection persisted across navigation.
 // @author       x0697x
 // @license      MIT

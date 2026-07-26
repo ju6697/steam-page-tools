@@ -2,7 +2,7 @@
   <img src="https://i.ibb.co/Q3h2hsrf/image.png" alt="Steam Badges - Filter Drops Remaining" width="150">
 </p>
 
-## Latest Update — v1.7.0
+## Latest Update — v1.7
 
 Added a new **Steam Search bulk "Add to Cart" selection UI**.
 
