@@ -10,6 +10,8 @@ Added a new **Steam Search bulk "Add to Cart" selection UI**.
 * Add all selected games to your cart in bulk.
 * Selections are saved persistently, allowing them to remain available while browsing and navigating through search results.
 
+<img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="selection UI"> <img src="https://i.ibb.co/67Nsv5RC/Screenshot-2026-07-26-012925.png" alt="Add to Cart">
+
 # Steam Badges - Filter Drops Remaining
 
 Userscript for **Violentmonkey** and **Tampermonkey** that adds a filter to Steam's badges page to hide games with no card drops remaining.
