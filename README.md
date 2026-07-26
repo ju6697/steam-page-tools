@@ -71,5 +71,5 @@ https://greasyfork.org/en/scripts/588294-steam-badges-filter-drops-remaining
 
 3. Enable **Allow User Scripts** in extension **Details**
 
-<img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Details">
+<img src="https://i.ibb.co/6J8nRzzw/image.png" alt="Details">
 <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts">
