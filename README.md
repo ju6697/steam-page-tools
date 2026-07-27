@@ -1,22 +1,16 @@
 <p align="center">
-  <img src="https://i.ibb.co/Q3h2hsrf/image.png" alt="Steam Badges - Filter Drops Remaining" width="150">
+  <img src="https://i.ibb.co/wr0d9jH3/diagram.png" alt="Steam Page Tools" width="150">
 </p>
 
-## Latest Update — v1.7
+# Steam Page Tools
 
-Added a new **Steam Search bulk "Add to Cart" selection UI**.
+Userscript for Violentmonkey and Tampermonkey that enhances various Steam pages with quality-of-life tools.
 
-* Select multiple games directly from Steam search results.
-* Add all selected games to your cart in bulk.
-* Selections are saved persistently, allowing them to remain available while browsing and navigating through search results.
+**Current features:**
 
-<img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="selection UI"> <img src="https://i.ibb.co/67Nsv5RC/Screenshot-2026-07-26-012925.png" alt="Add to Cart">
+- **Badges page:** Filter to hide games with no card drops remaining<br/><img src="https://i.ibb.co/1JJYW5hg/image.png" alt="Steam Badges Filter Screenshot">
 
-# Steam Badges - Filter Drops Remaining
-
-Userscript for **Violentmonkey** and **Tampermonkey** that adds a filter to Steam's badges page to hide games with no card drops remaining.
-
-<img src="https://i.ibb.co/1JJYW5hg/image.png" alt="Steam Badges Filter Screenshot">
+- **Store page:** Checkboxes next to games for bulk purchasing<br/><img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="selection UI"> <img src="https://i.ibb.co/67Nsv5RC/Screenshot-2026-07-26-012925.png" alt="Add to Cart">
 
 ## Install
 
@@ -40,11 +34,11 @@ https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejag
 4. Paste the following URL:
 
 ```text
-https://raw.githubusercontent.com/x0697x/steam-badges-drop-filter/main/steam-badges-drop-filter.user.js
+https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
 ```
 5. Click **Install**.
 
-<img src="https://i.ibb.co/d0QCfrs6/image.png" alt="Violentmonkey Install">
+<img src="https://i.ibb.co/JFHwDPYM/Screenshot-2026-07-27-234845.png" alt="Violentmonkey Install">
 
 6. Enable **Allow User Scripts** in extension **Details**
 
@@ -59,7 +53,7 @@ https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmp
 
 Then open the Greasy Fork page:
 
-https://greasyfork.org/en/scripts/588294-steam-badges-filter-drops-remaining
+https://greasyfork.org/en/scripts/588294-steam-page-tools
 
 1. Click **Install this script**.
 
@@ -67,7 +61,7 @@ https://greasyfork.org/en/scripts/588294-steam-badges-filter-drops-remaining
 
 2. Click **Install**.
 
-<img src="https://i.ibb.co/jkcX0Xqx/image.png" alt="Tampermonkey Install">
+<img src="https://i.ibb.co/9HRN1pkR/image.png" alt="Tampermonkey Install">
 
 3. Enable **Allow User Scripts** in extension **Details**
 
