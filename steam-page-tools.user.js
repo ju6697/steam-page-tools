@@ -10,7 +10,7 @@
 // @match        https://store.steampowered.com/search/*
 // @match        https://store.steampowered.com/search*
 // @grant        none
-// @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3QgeD0iOCIgeT0iMTQiIHdpZHRoPSIzNiIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiMxYjI4MzgiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIyIiB0cmFuc2Zvcm09InJvdGF0ZSgtOCAyNiAzNCkiLz48cmVjdCB4PSIxOCIgeT0iMTAiIHdpZHRoPSIzNiIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiMyYTQ3NWUiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iMjIiIHk9IjE0IiB3aWR0aD0iMjgiIGhlaWdodD0iNiIgcng9IjEuNSIgZmlsbD0iIzFiMjgzOCIvPjxyZWN0IHg9IjIyIiB5PSIyNCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIuNSIgcng9IjEiIGZpbGw9IiM2NmMwZjQiIG9wYWNpdHk9IjAuNSIvPjxyZWN0IHg9IjIyIiB5PSIzMCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjIuNSIgcng9IjEiIGZpbGw9IiM2NmMwZjQiIG9wYWNpdHk9IjAuMzUiLz48cmVjdCB4PSIyMiIgeT0iMzYiIHdpZHRoPSIxOCIgaGVpZ2h0PSIyLjUiIHJ4PSIxIiBmaWxsPSIjNjZjMGY0IiBvcGFjaXR5PSIwLjM1Ii8+PGNpcmNsZSBjeD0iNDYiIGN5PSI0MiIgcj0iOSIgZmlsbD0iIzY2YzBmNCIgb3BhY2l0eT0iMC4xOCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwIDM2KSByb3RhdGUoMzUpIj48cmVjdCB4PSItMiIgeT0iLTEwIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNCIgcng9IjEuNSIgZmlsbD0iIzY2YzBmNCIvPjxjaXJjbGUgY3g9IjAiIGN5PSItMTIiIHI9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIzIi8+PGNpcmNsZSBjeD0iMCIgY3k9Ii0xMiIgcj0iMiIgZmlsbD0iIzFiMjgzOCIvPjwvZz48L3N2Zz4=
+// @icon         https://i.ibb.co/wr0d9jH3/diagram.png
 // @updateURL    https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
 // @downloadURL  https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
 // @homepageURL  https://github.com/x0697x/steam-page-tools
