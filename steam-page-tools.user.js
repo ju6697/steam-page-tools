@@ -4,7 +4,6 @@
 // @version      1.7.2
 // @description  Userscript for Violentmonkey and Tampermonkey that enhances various Steam pages with quality-of-life tools.
 // @author       x0697x
-// @license      MIT
 // @match        https://steamcommunity.com/id/*/badges*
 // @match        https://steamcommunity.com/profiles/*/badges*
 // @match        https://store.steampowered.com/search/*
