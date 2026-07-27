@@ -2,7 +2,7 @@
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
 // @version      1.7.2
-// @description  Adds a toggle on the Steam badges page to show only games with card drops remaining. Also adds bulk-select checkboxes and a matching Add to Cart button on Steam store search results pages, with the selection persisted across navigation.
+// @description  Userscript for Violentmonkey and Tampermonkey that enhances various Steam pages with quality-of-life tools.
 // @author       x0697x
 // @license      MIT
 // @match        https://steamcommunity.com/id/*/badges*
