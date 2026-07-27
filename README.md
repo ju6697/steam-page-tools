@@ -57,7 +57,7 @@ https://greasyfork.org/en/scripts/588294-steam-page-tools
 
 1. Click **Install this script**.
 
-<img src="https://i.ibb.co/TMnNbRzL/image.png" alt="Greasy Fork Install Button">
+<img src="https://i.ibb.co/dJmrckCt/image.png" alt="Greasy Fork Install Button">
 
 2. Click **Install**.
 
