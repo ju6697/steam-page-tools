@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Steam Badges - Filter Drops Remaining
-// @namespace    local.steam-badges-drop-filter
-// @version      1.7.1
-// @description  Adds a toggle on the Steam badges page to show only games with card drops remaining, checked across every page, independent of interface language, styled with Steam's own button component. Also adds bulk-select checkboxes and a matching Add to Cart button on Steam store search results pages, with the selection persisted across navigation.
+// @name         Steam Page Tools
+// @namespace    local.steam-page-tools
+// @version      1.7.2
+// @description  Adds a toggle on the Steam badges page to show only games with card drops remaining. Also adds bulk-select checkboxes and a matching Add to Cart button on Steam store search results pages, with the selection persisted across navigation.
 // @author       x0697x
 // @license      MIT
 // @match        https://steamcommunity.com/id/*/badges*
@@ -10,10 +10,10 @@
 // @match        https://store.steampowered.com/search/*
 // @match        https://store.steampowered.com/search*
 // @grant        none
-// @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB4PSIzIiB5PSI3IiB3aWR0aD0iMTciIGhlaWdodD0iMjMiIHJ4PSIzIiBmaWxsPSIjMWIyODM4IiBzdHJva2U9IiM2NmMwZjQiIHN0cm9rZS13aWR0aD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTAgMTEuNSAxOC41KSIvPgo8cmVjdCB4PSIxMSIgeT0iMyIgd2lkdGg9IjE3IiBoZWlnaHQ9IjIzIiByeD0iMyIgZmlsbD0iIzJhNDc1ZSIgc3Ryb2tlPSIjNjZjMGY0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8Y2lyY2xlIGN4PSIxOS41IiBjeT0iMTQuNSIgcj0iMyIgZmlsbD0iIzY2YzBmNCIvPgo8L3N2Zz4K
-// @updateURL    https://raw.githubusercontent.com/x0697x/steam-badges-drop-filter/main/steam-badges-drop-filter.user.js
-// @downloadURL  https://raw.githubusercontent.com/x0697x/steam-badges-drop-filter/main/steam-badges-drop-filter.user.js
-// @homepageURL  https://github.com/x0697x/steam-badges-drop-filter
+// @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3QgeD0iOCIgeT0iMTQiIHdpZHRoPSIzNiIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiMxYjI4MzgiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIyIiB0cmFuc2Zvcm09InJvdGF0ZSgtOCAyNiAzNCkiLz48cmVjdCB4PSIxOCIgeT0iMTAiIHdpZHRoPSIzNiIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiMyYTQ3NWUiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iMjIiIHk9IjE0IiB3aWR0aD0iMjgiIGhlaWdodD0iNiIgcng9IjEuNSIgZmlsbD0iIzFiMjgzOCIvPjxyZWN0IHg9IjIyIiB5PSIyNCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIuNSIgcng9IjEiIGZpbGw9IiM2NmMwZjQiIG9wYWNpdHk9IjAuNSIvPjxyZWN0IHg9IjIyIiB5PSIzMCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjIuNSIgcng9IjEiIGZpbGw9IiM2NmMwZjQiIG9wYWNpdHk9IjAuMzUiLz48cmVjdCB4PSIyMiIgeT0iMzYiIHdpZHRoPSIxOCIgaGVpZ2h0PSIyLjUiIHJ4PSIxIiBmaWxsPSIjNjZjMGY0IiBvcGFjaXR5PSIwLjM1Ii8+PGNpcmNsZSBjeD0iNDYiIGN5PSI0MiIgcj0iOSIgZmlsbD0iIzY2YzBmNCIgb3BhY2l0eT0iMC4xOCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwIDM2KSByb3RhdGUoMzUpIj48cmVjdCB4PSItMiIgeT0iLTEwIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNCIgcng9IjEuNSIgZmlsbD0iIzY2YzBmNCIvPjxjaXJjbGUgY3g9IjAiIGN5PSItMTIiIHI9IjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2YzBmNCIgc3Ryb2tlLXdpZHRoPSIzIi8+PGNpcmNsZSBjeD0iMCIgY3k9Ii0xMiIgcj0iMiIgZmlsbD0iIzFiMjgzOCIvPjwvZz48L3N2Zz4=
+// @updateURL    https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
+// @downloadURL  https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
+// @homepageURL  https://github.com/x0697x/steam-page-tools
 // ==/UserScript==
 
 (function () {
@@ -196,7 +196,7 @@
                             rows = await fetchPageRows(page);
                         } catch (err) {
                             console.error(
-                                'Steam Badges filter: failed loading page',
+                                'Steam Page Tools: failed loading page',
                                 page,
                                 err
                             );
@@ -312,7 +312,8 @@
     //   button would generally do.
     // =====================================================================
     function initSearchBulkCart() {
-        const STORAGE_KEY = 'dbf-search-cart-selection';
+        const STORAGE_KEY = 'spt-search-cart-selection';
+        const LEGACY_STORAGE_KEY = 'dbf-search-cart-selection';
         const selected = new Map(); // appid -> { name, box }
         let busy = false;
 
@@ -329,7 +330,17 @@
         // successfully added, or via the bar's clear-selection control.
         function loadStoredSelection() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY);
+                let raw = localStorage.getItem(STORAGE_KEY);
+
+                // One-time migration from the old script name.
+                if (!raw) {
+                    raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+
+                    if (raw) {
+                        localStorage.setItem(STORAGE_KEY, raw);
+                        localStorage.removeItem(LEGACY_STORAGE_KEY);
+                    }
+                }
 
                 if (!raw) {
                     return new Map();
@@ -337,7 +348,7 @@
 
                 return new Map(Object.entries(JSON.parse(raw)));
             } catch (err) {
-                console.error('Steam search bulk-cart: failed to read saved selection', err);
+                console.error('Steam Page Tools: failed to read saved selection', err);
                 return new Map();
             }
         }
@@ -352,7 +363,7 @@
 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
             } catch (err) {
-                console.error('Steam search bulk-cart: failed to save selection', err);
+                console.error('Steam Page Tools: failed to save selection', err);
             }
         }
 
@@ -377,7 +388,7 @@
         function clearSelection() {
             selected.forEach((info) => {
                 if (info.box) {
-                    info.box.classList.remove('dbf-checked');
+                    info.box.classList.remove('spt-checked');
                     info.box.setAttribute('aria-checked', 'false');
                 }
             });
@@ -452,11 +463,11 @@
         }
 
         function processRow(row) {
-            if (row.dataset.dbfProcessed) {
+            if (row.dataset.sptProcessed) {
                 return;
             }
 
-            row.dataset.dbfProcessed = '1';
+            row.dataset.sptProcessed = '1';
 
             const appid = extractAppId(row);
 
@@ -478,7 +489,7 @@
 
             const box = document.createElement('div');
 
-            box.className = 'dbf-cart-checkbox';
+            box.className = 'spt-cart-checkbox';
             box.tabIndex = 0;
             box.setAttribute('role', 'checkbox');
             box.setAttribute('aria-checked', 'false');
@@ -488,7 +499,7 @@
                 const info = selected.get(appid);
 
                 info.box = box;
-                box.classList.add('dbf-checked');
+                box.classList.add('spt-checked');
                 box.setAttribute('aria-checked', 'true');
             }
 
@@ -500,6 +511,7 @@
                 e.stopPropagation();
                 toggleSelection(appid, name, box);
             });
+
             box.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -514,11 +526,11 @@
         function toggleSelection(appid, name, box) {
             if (selected.has(appid)) {
                 selected.delete(appid);
-                box.classList.remove('dbf-checked');
+                box.classList.remove('spt-checked');
                 box.setAttribute('aria-checked', 'false');
             } else {
                 selected.set(appid, { name, box });
-                box.classList.add('dbf-checked');
+                box.classList.add('spt-checked');
                 box.setAttribute('aria-checked', 'true');
             }
 
@@ -532,9 +544,9 @@
             bar.label.textContent = `Add ${count} to Cart`;
 
             if (count > 0) {
-                bar.el.classList.add('dbf-visible');
+                bar.el.classList.add('spt-visible');
             } else if (!busy) {
-                bar.el.classList.remove('dbf-visible');
+                bar.el.classList.remove('spt-visible');
                 setStatus('');
             }
         }
@@ -621,11 +633,11 @@
         function buildBar() {
             const el = document.createElement('div');
 
-            el.id = 'dbf-cart-bar';
+            el.id = 'spt-cart-bar';
 
             const status = document.createElement('span');
 
-            status.id = 'dbf-cart-status';
+            status.id = 'spt-cart-status';
 
             const addWrap = document.createElement('div');
 
@@ -633,7 +645,7 @@
 
             const addBtn = document.createElement('a');
 
-            addBtn.id = 'dbf-add-to-cart-btn';
+            addBtn.id = 'spt-add-to-cart-btn';
             addBtn.className = 'btnv6_green_white_innerfade btn_medium';
             addBtn.setAttribute('role', 'button');
             addBtn.tabIndex = 0;
@@ -647,7 +659,7 @@
 
             const closeBtn = document.createElement('span');
 
-            closeBtn.id = 'dbf-cart-close';
+            closeBtn.id = 'spt-cart-close';
             closeBtn.textContent = '\u2715';
             closeBtn.title = 'Clear selection';
             closeBtn.setAttribute('role', 'button');
@@ -656,6 +668,7 @@
             closeBtn.addEventListener('click', () => {
                 clearSelection();
             });
+
             closeBtn.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -699,13 +712,13 @@
                         selected.delete(appid);
 
                         if (info.box) {
-                            info.box.classList.remove('dbf-checked');
+                            info.box.classList.remove('spt-checked');
                             info.box.setAttribute('aria-checked', 'false');
                         }
 
                         saveSelection();
                     } catch (err) {
-                        console.error('Steam search bulk-cart: failed to add', appid, err);
+                        console.error('Steam Page Tools: failed to add', appid, err);
                         failed.push(info.name);
                     }
 
@@ -743,7 +756,7 @@
             const style = document.createElement('style');
 
             style.textContent = `
-                .dbf-cart-checkbox {
+                .spt-cart-checkbox {
                     position: absolute;
                     bottom: 4px;
                     right: 4px;
@@ -755,10 +768,12 @@
                     cursor: pointer;
                     z-index: 5;
                 }
-                .dbf-cart-checkbox.dbf-checked {
+
+                .spt-cart-checkbox.spt-checked {
                     background: #67c1f1;
                 }
-                .dbf-cart-checkbox.dbf-checked::after {
+
+                .spt-cart-checkbox.spt-checked::after {
                     content: '';
                     position: absolute;
                     left: 5px;
@@ -769,7 +784,8 @@
                     border-width: 0 2px 2px 0;
                     transform: rotate(45deg);
                 }
-                #dbf-cart-bar {
+
+                #spt-cart-bar {
                     position: fixed;
                     right: 20px;
                     bottom: 20px;
@@ -784,21 +800,25 @@
                     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
                     font-family: "Motiva Sans", Arial, sans-serif;
                 }
-                #dbf-cart-bar.dbf-visible {
+
+                #spt-cart-bar.spt-visible {
                     display: flex;
                 }
-                #dbf-cart-status {
+
+                #spt-cart-status {
                     color: #8f98a0;
                     font-size: 12px;
                     max-width: 280px;
                 }
-                #dbf-cart-close {
+
+                #spt-cart-close {
                     cursor: pointer;
                     color: #8f98a0;
                     font-size: 13px;
                     padding: 2px 4px;
                 }
-                #dbf-cart-close:hover {
+
+                #spt-cart-close:hover {
                     color: #ffffff;
                 }
             `;
