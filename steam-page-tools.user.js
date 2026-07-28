@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
-// @version      1.9.0
-// @description  Adds badge filtering, auto-crafting, and bulk store actions to Steam.
+// @version      1.10.0
+// @description  Adds badge tools, store filters, and bulk actions to Steam.
 // @author       x0697x
 // @match        https://steamcommunity.com/id/*/badges*
 // @match        https://steamcommunity.com/profiles/*/badges*
@@ -41,10 +41,42 @@
         });
     }
 
+    function getFamilyOnlyAppIds(library) {
+        const ownerSteamId = String(library?.owner_steamid || '');
+
+        if (!/^\d+$/.test(ownerSteamId) || !Array.isArray(library?.apps)) {
+            throw new Error('Steam returned invalid family library data');
+        }
+
+        const appids = new Set();
+
+        library.apps.forEach((app) => {
+            const appid = String(app?.appid || '');
+
+            if (
+                !/^\d+$/.test(appid) ||
+                app?.exclude_reason !== 0 ||
+                !Array.isArray(app.owner_steamids)
+            ) {
+                return;
+            }
+
+            const owners = app.owner_steamids
+                .map((steamid) => String(steamid))
+                .filter((steamid) => /^\d+$/.test(steamid));
+
+            if (owners.length && !owners.includes(ownerSteamId)) {
+                appids.add(appid);
+            }
+        });
+
+        return appids;
+    }
+
     if (location.hostname === 'steamcommunity.com') {
         initBadgesPageTools();
     } else if (location.hostname === 'store.steampowered.com') {
-        initSearchBulkCart();
+        initStoreSearchTools();
     }
 
     // Badge page tools.
@@ -1358,16 +1390,23 @@
         }, 250);
     }
 
-    // Store search bulk actions.
+    // Store search tools.
     // Bundle results are skipped because they require bundle-package lookup.
     // Apps with multiple purchase options use Steam's first/default package,
     // matching the primary action on the app page.
-    function initSearchBulkCart() {
+    function initStoreSearchTools() {
         const STORAGE_KEY = 'spt-search-cart-selection';
         const LEGACY_STORAGE_KEY = 'dbf-search-cart-selection';
+        const FAMILY_FILTER_STORAGE_KEY = 'spt-search-hide-family-shared';
+        const FAMILY_FILTER_ACTIVE_CLASS = 'spt-hide-family-shared';
+        const FAMILY_SHARED_ROW_CLASS = 'spt-family-shared';
 
         // Map app IDs to their display names and rendered checkboxes.
         const selected = new Map();
+        let familyOnlyAppIds = null;
+        let familyFilterControl = null;
+        let familyDataRequest = null;
+        let familyFilterEnabled = loadFamilyFilterPreference();
         let busy = false;
 
         injectStyles();
@@ -1376,6 +1415,7 @@
         document.body.appendChild(bar.el);
 
         restoreSelection();
+        initFamilyFilter();
 
         // Persist selections until each game succeeds or the user clears
         // them, including across navigation and browser restarts.
@@ -1461,6 +1501,281 @@
             updateBar();
         }
 
+        function loadFamilyFilterPreference() {
+            try {
+                return localStorage.getItem(FAMILY_FILTER_STORAGE_KEY) === '1';
+            } catch (err) {
+                console.warn(
+                    'Steam Page Tools: could not read the family filter preference',
+                    err
+                );
+                return false;
+            }
+        }
+
+        function saveFamilyFilterPreference() {
+            try {
+                localStorage.setItem(
+                    FAMILY_FILTER_STORAGE_KEY,
+                    familyFilterEnabled ? '1' : '0'
+                );
+            } catch (err) {
+                console.warn(
+                    'Steam Page Tools: could not save the family filter preference',
+                    err
+                );
+            }
+        }
+
+        // Place the custom filter beside Steam's client-side library filters.
+        function initFamilyFilter() {
+            let attempts = 0;
+
+            document.documentElement.classList.toggle(
+                FAMILY_FILTER_ACTIVE_CLASS,
+                familyFilterEnabled
+            );
+
+            const interval = setInterval(() => {
+                attempts += 1;
+
+                if (insertFamilyFilter() || attempts > 20) {
+                    clearInterval(interval);
+                }
+            }, 250);
+        }
+
+        function insertFamilyFilter() {
+            if (familyFilterControl) {
+                return true;
+            }
+
+            const nativeOwnedFilter = document.querySelector(
+                '#client_filter .tab_filter_control_row[data-value="hide_owned"]'
+            );
+            const filterContainer =
+                nativeOwnedFilter?.parentElement ||
+                document.querySelector('#client_filter .block_content_inner');
+
+            if (!filterContainer) {
+                return false;
+            }
+
+            const row = document.createElement('div');
+
+            row.className = 'tab_filter_control_row spt-family-filter-row';
+
+            const label = document.createElement('label');
+
+            label.className = 'spt-family-filter-control';
+            label.title =
+                "Hide games available through Steam Families unless this account owns a copy";
+
+            const input = document.createElement('input');
+
+            input.className = 'spt-family-filter-input';
+            input.type = 'checkbox';
+            input.checked = familyFilterEnabled;
+
+            const labelContainer = document.createElement('span');
+
+            labelContainer.className = 'tab_filter_label_container';
+
+            const checkbox = document.createElement('span');
+
+            checkbox.className = 'spt-family-filter-checkbox';
+            checkbox.setAttribute('aria-hidden', 'true');
+
+            const text = document.createElement('span');
+
+            text.className = 'tab_filter_control_label';
+            text.textContent = "Hide family-shared games I don't own";
+
+            const status = document.createElement('span');
+
+            status.className =
+                'tab_filter_control_count spt-family-filter-status';
+
+            labelContainer.appendChild(checkbox);
+            labelContainer.appendChild(text);
+            labelContainer.appendChild(status);
+            label.appendChild(input);
+            label.appendChild(labelContainer);
+            row.appendChild(label);
+
+            if (nativeOwnedFilter) {
+                nativeOwnedFilter.after(row);
+            } else {
+                filterContainer.appendChild(row);
+            }
+
+            familyFilterControl = { row, label, input, status };
+            syncFamilyFilterControl();
+
+            input.addEventListener('change', () => {
+                setFamilyFilterEnabled(input.checked);
+
+                if (familyFilterEnabled && familyOnlyAppIds === null) {
+                    loadFamilyOnlyApps();
+                }
+            });
+
+            if (familyFilterEnabled) {
+                loadFamilyOnlyApps();
+            }
+
+            return true;
+        }
+
+        function setFamilyFilterEnabled(enabled, persist = true) {
+            familyFilterEnabled = Boolean(enabled);
+
+            document.documentElement.classList.toggle(
+                FAMILY_FILTER_ACTIVE_CLASS,
+                familyFilterEnabled
+            );
+
+            syncFamilyFilterControl();
+
+            if (persist) {
+                saveFamilyFilterPreference();
+            }
+        }
+
+        function syncFamilyFilterControl() {
+            if (!familyFilterControl) {
+                return;
+            }
+
+            const { row, input } = familyFilterControl;
+
+            input.checked = familyFilterEnabled;
+            row.classList.toggle('checked', familyFilterEnabled);
+        }
+
+        function setFamilyFilterStatus(text, state = '') {
+            if (!familyFilterControl) {
+                return;
+            }
+
+            const { row, label, input, status } = familyFilterControl;
+
+            status.textContent = text;
+            status.style.display = text ? '' : 'none';
+            row.classList.toggle('spt-loading', state === 'loading');
+            row.classList.toggle('spt-error', state === 'error');
+            input.setAttribute(
+                'aria-busy',
+                state === 'loading' ? 'true' : 'false'
+            );
+
+            label.title =
+                state === 'error'
+                    ? 'Steam family data is unavailable. Click to retry.'
+                    : "Hide games available through Steam Families unless this account owns a copy";
+        }
+
+        function loadFamilyOnlyApps() {
+            if (familyOnlyAppIds !== null) {
+                return Promise.resolve(familyOnlyAppIds);
+            }
+
+            if (familyDataRequest) {
+                return familyDataRequest;
+            }
+
+            setFamilyFilterStatus('Loading...', 'loading');
+
+            familyDataRequest = fetchFamilyOnlyAppIds()
+                .then((appids) => {
+                    familyOnlyAppIds = appids;
+                    markFamilyOnlyRows();
+                    setFamilyFilterStatus('');
+                    return appids;
+                })
+                .catch((err) => {
+                    familyOnlyAppIds = null;
+                    markFamilyOnlyRows();
+                    setFamilyFilterEnabled(false);
+                    setFamilyFilterStatus('Unavailable', 'error');
+                    console.warn(
+                        'Steam Page Tools: could not load the family library',
+                        err
+                    );
+                    return null;
+                })
+                .finally(() => {
+                    familyDataRequest = null;
+                });
+
+            return familyDataRequest;
+        }
+
+        async function fetchFamilyOnlyAppIds() {
+            const tokenResponse = await fetch(
+                `${location.origin}/pointssummary/ajaxgetasyncconfig`,
+                {
+                    credentials: 'include',
+                    cache: 'no-store',
+                    headers: { Accept: 'application/json' },
+                }
+            );
+
+            if (!tokenResponse.ok) {
+                throw new Error(`token request returned HTTP ${tokenResponse.status}`);
+            }
+
+            const tokenPayload = await tokenResponse.json();
+            const accessToken = tokenPayload?.data?.webapi_token;
+
+            if (!tokenPayload?.success || !accessToken) {
+                throw new Error('Steam did not return a Web API token');
+            }
+
+            const url = new URL(
+                'https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/'
+            );
+
+            url.searchParams.set('access_token', accessToken);
+            // The authenticated service resolves the group from the token.
+            url.searchParams.set('family_groupid', '0');
+            // Steam returns both personal and family licenses only when this
+            // counterintuitive flag is enabled.
+            url.searchParams.set('include_own', 'true');
+            url.searchParams.set('include_excluded', 'true');
+            url.searchParams.set('include_free', 'false');
+            url.searchParams.set('include_non_games', 'false');
+
+            const libraryResponse = await fetch(url.toString(), {
+                credentials: 'omit',
+                cache: 'no-store',
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!libraryResponse.ok) {
+                throw new Error(
+                    `family library request returned HTTP ${libraryResponse.status}`
+                );
+            }
+
+            const payload = await libraryResponse.json();
+
+            return getFamilyOnlyAppIds(payload?.response);
+        }
+
+        function markFamilyOnlyRows() {
+            document
+                .querySelectorAll('.search_result_row')
+                .forEach((row) => markFamilyOnlyRow(row, extractAppId(row)));
+        }
+
+        function markFamilyOnlyRow(row, appid) {
+            row.classList.toggle(
+                FAMILY_SHARED_ROW_CLASS,
+                Boolean(appid && familyOnlyAppIds?.has(appid))
+            );
+        }
+
         let scanAttempts = 0;
 
         const scanInterval = setInterval(() => {
@@ -1533,6 +1848,8 @@
             if (!appid) {
                 return;
             }
+
+            markFamilyOnlyRow(row, appid);
 
             const nameEl = row.querySelector('.title');
             const name = nameEl ? nameEl.textContent.trim() : `App ${appid}`;
@@ -2155,6 +2472,85 @@
                     border: solid #1b2838;
                     border-width: 0 2px 2px 0;
                     transform: rotate(45deg);
+                }
+
+                html.${FAMILY_FILTER_ACTIVE_CLASS}
+                    .search_result_row.${FAMILY_SHARED_ROW_CLASS} {
+                    display: none !important;
+                }
+
+                .spt-family-filter-control {
+                    flex-grow: 1;
+                    box-sizing: border-box;
+                    min-width: 0;
+                    padding: 0 8px;
+                    color: #9fbbcb;
+                    cursor: pointer;
+                    font-family: "Motiva Sans", Arial, sans-serif;
+                    font-size: 13px;
+                    line-height: 28px;
+                }
+
+                .spt-family-filter-control
+                    > .tab_filter_label_container {
+                    display: grid;
+                    grid-template-columns:
+                        min-content minmax(0, 1fr) min-content;
+                    width: 100%;
+                }
+
+                .spt-family-filter-row.checked
+                    .spt-family-filter-control {
+                    color: #ffffff;
+                }
+
+                .spt-family-filter-input {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    margin: 0;
+                    opacity: 0;
+                    pointer-events: none;
+                }
+
+                .spt-family-filter-checkbox {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 8px;
+                    background-image:
+                        url('/public/images/v6/store_checkbox_blue.png');
+                    background-position: top center;
+                    vertical-align: text-bottom;
+                    transform: translateY(3px);
+                }
+
+                .spt-family-filter-input:checked
+                    + .tab_filter_label_container
+                    .spt-family-filter-checkbox {
+                    background-position: bottom center;
+                }
+
+                .spt-family-filter-input:focus-visible
+                    + .tab_filter_label_container
+                    .spt-family-filter-checkbox {
+                    outline: 1px solid #ffffff;
+                    outline-offset: 1px;
+                }
+
+                .spt-family-filter-status {
+                    display: none;
+                    white-space: nowrap;
+                }
+
+                .spt-family-filter-row.spt-loading
+                    .spt-family-filter-control {
+                    cursor: progress;
+                }
+
+                .spt-family-filter-row.spt-error
+                    .spt-family-filter-status {
+                    color: #d94126;
                 }
 
                 #spt-cart-bar {

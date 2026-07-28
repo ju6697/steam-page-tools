@@ -10,11 +10,17 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 - [Changelog](#changelog)
 - [Features](#features)
+  - [Badge pages](#badge-pages)
+  - [Steam Store search results](#steam-store-search-results)
 - [Installation](#installation)
   - [Violentmonkey](#violentmonkey)
   - [Tampermonkey](#tampermonkey)
 
 ## Changelog
+
+### 1.10.0 - 2026-07-28
+
+- **Added:** An opt-in Store search filter that hides games available through Steam Families when the signed-in account does not own a copy.
 
 ### 1.9.0 - 2026-07-28
 
@@ -39,11 +45,14 @@ These tools are available only on the signed-in account's own badge pages.
 
 ### Steam Store search results
 
+- Hide family-shared games that the signed-in account does not own.
 - Select games directly from the search results.
 - Add selected games to the cart in one run.
 - Add selected games to the wishlist after refreshing the account's current wishlist; games already on it are skipped automatically.
 
 Bundle rows are not supported. When a game has multiple purchase options, the cart action uses Steam's first/default package.
+
+The family filter is off by default and leaves all results visible if Steam's family data is unavailable.
 
 <img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="Selection checkboxes on Steam search results"><img src="https://i.ibb.co/yc324R1q/image.png" alt="Bulk cart and wishlist action bar">
 
