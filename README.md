@@ -6,6 +6,23 @@
 
 A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Community badge pages and Steam Store search results.
 
+## Contents
+
+- [Changelog](#changelog)
+- [Features](#features)
+- [Installation](#installation)
+  - [Violentmonkey](#violentmonkey)
+  - [Tampermonkey](#tampermonkey)
+
+## Changelog
+
+### 1.9.0 - 2026-07-28
+
+- **Added:** Safe badge auto-crafting with confirmation, live progress, reward rescans, rate-limit handling, cross-tab protection, safety limits, and stop controls.
+- **Added:** Bulk wishlist actions that refresh the current wishlist and skip games already on it.
+- **Improved:** Badge pagination, saved-selection recovery, shared controls, and explanatory comments.
+- **Documentation:** Reworked the feature overview, safety notes, limitations, installation steps, and screenshots.
+
 ## Features
 
 ### Badge pages
