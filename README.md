@@ -4,66 +4,72 @@
 
 # Steam Page Tools
 
-Userscript for Violentmonkey and Tampermonkey that enhances various Steam pages with quality-of-life tools.
+A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Community badge pages and Steam Store search results.
 
-**Current features:**
+## Features
 
-- **Badges page:** Filter to hide games with no card drops remaining<br/><img src="https://i.ibb.co/1JJYW5hg/image.png" alt="Steam Badges Filter Screenshot">
+### Badge pages
 
-- **Store page:** Checkboxes next to games for bulk purchasing<br/><img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="selection UI"> <img src="https://i.ibb.co/67Nsv5RC/Screenshot-2026-07-26-012925.png" alt="Add to Cart">
+These tools are available only on the signed-in account's own badge pages.
 
-## Install
+- Show only games with card drops remaining across paginated badge results.
+- Auto-craft complete card sets across your badge pages, with confirmation, live progress, request pacing, rate-limit handling, cross-tab protection, safety limits, and a stop-after-current-request control.
 
-Choose your userscript manager:
+> [!WARNING]
+> Auto-crafting consumes cards and cannot be undone. The script asks for confirmation before crafting begins.
 
-* [Violentmonkey](#violentmonkey)
-* [Tampermonkey](#tampermonkey)
+<img src="https://i.ibb.co/pj09Cs4t/Screenshot-2026-07-28-173351.png" alt="Steam badge filter and auto-craft controls">
+
+### Steam Store search results
+
+- Select games directly from the search results.
+- Add selected games to the cart in one run.
+- Add selected games to the wishlist after refreshing the account's current wishlist; games already on it are skipped automatically.
+
+Bundle rows are not supported. When a game has multiple purchase options, the cart action uses Steam's first/default package.
+
+<img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="Selection checkboxes on Steam search results">
+<img src="https://i.ibb.co/yc324R1q/image.png" alt="Bulk cart and wishlist action bar">
+
+## Installation
+
+The instructions and extension links below are for Chrome and Chromium-based browsers.
 
 ### Violentmonkey
 
-Install the extension from the Chrome Web Store:
+1. Install [Violentmonkey from the Chrome Web Store](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
+2. Open the **Violentmonkey Dashboard**, then click **+**.
 
-https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag
+   <img src="https://i.ibb.co/7tBnYGh3/vkc-CFS1-Imgur.png" alt="Violentmonkey add-script button">
 
-1. Open the **Violentmonkey Dashboard**.
-2. Click **+**.
+3. Click **Install from URL**, then paste:
 
-<img src="https://i.ibb.co/7tBnYGh3/vkc-CFS1-Imgur.png" alt="Violentmonkey Add Button">
+   ```text
+   https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
+   ```
 
-3. Click **Install from URL**.
-4. Paste the following URL:
+4. Click **Install**.
 
-```text
-https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
-```
-5. Click **Install**.
+   <img src="https://i.ibb.co/JFHwDPYM/Screenshot-2026-07-27-234845.png" alt="Violentmonkey install confirmation">
 
-<img src="https://i.ibb.co/JFHwDPYM/Screenshot-2026-07-27-234845.png" alt="Violentmonkey Install">
+5. On the extension's **Details** page, enable **Allow User Scripts**.
 
-6. Enable **Allow User Scripts** in extension **Details**
-
-<img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Details">
-<img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts">
+   <img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Chrome extension details">
+   <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts setting">
 
 ### Tampermonkey
 
-Install the extension from the Chrome Web Store:
+1. Install [Tampermonkey from the Chrome Web Store](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
+2. Open [Steam Page Tools on Greasy Fork](https://greasyfork.org/en/scripts/588294-steam-page-tools).
+3. Click **Install this script**.
 
-https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+   <img src="https://i.ibb.co/dJmrckCt/image.png" alt="Greasy Fork install button">
 
-Then open the Greasy Fork page:
+4. Confirm by clicking **Install**.
 
-https://greasyfork.org/en/scripts/588294-steam-page-tools
+   <img src="https://i.ibb.co/9HRN1pkR/image.png" alt="Tampermonkey install confirmation">
 
-1. Click **Install this script**.
+5. On the extension's **Details** page, enable **Allow User Scripts**.
 
-<img src="https://i.ibb.co/dJmrckCt/image.png" alt="Greasy Fork Install Button">
-
-2. Click **Install**.
-
-<img src="https://i.ibb.co/9HRN1pkR/image.png" alt="Tampermonkey Install">
-
-3. Enable **Allow User Scripts** in extension **Details**
-
-<img src="https://i.ibb.co/6J8nRzzw/image.png" alt="Details">
-<img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts">
+   <img src="https://i.ibb.co/6J8nRzzw/image.png" alt="Chrome extension details">
+   <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts setting">
