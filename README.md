@@ -45,7 +45,7 @@ These tools are available only on the signed-in account's own badge pages.
 
 Bundle rows are not supported. When a game has multiple purchase options, the cart action uses Steam's first/default package.
 
-<p><img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="Selection checkboxes on Steam search results"> <img src="https://i.ibb.co/yc324R1q/image.png" alt="Bulk cart and wishlist action bar"></p>
+<img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="Selection checkboxes on Steam search results"><img src="https://i.ibb.co/yc324R1q/image.png" alt="Bulk cart and wishlist action bar">
 
 ## Installation
 
