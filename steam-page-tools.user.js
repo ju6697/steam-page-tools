@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Steam Page Tools
+// @name         [test-family-shared-filter] Steam Page Tools
 // @namespace    local.steam-page-tools
 // @version      1.10.0
 // @description  Adds badge tools, store filters, and bulk actions to Steam.
@@ -9,9 +9,9 @@
 // @match        https://store.steampowered.com/search*
 // @grant        none
 // @icon         https://i.ibb.co/wr0d9jH3/diagram.png
-// @updateURL    https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
-// @downloadURL  https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
-// @homepageURL  https://github.com/x0697x/steam-page-tools
+// @updateURL    https://raw.githubusercontent.com/x0697x/steam-page-tools/codex/test-family-shared-filter/steam-page-tools.user.js
+// @downloadURL  https://raw.githubusercontent.com/x0697x/steam-page-tools/codex/test-family-shared-filter/steam-page-tools.user.js
+// @homepageURL  https://github.com/x0697x/steam-page-tools/tree/codex/test-family-shared-filter
 // ==/UserScript==
 
 (function () {
