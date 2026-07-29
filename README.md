@@ -18,7 +18,7 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ### 1.9.1 - 2026-07-29
 
-- **Added:** A compact SteamSets badge-search shortcut to every Steam profile badge page.
+- **Added:** A compact SteamSets badge-search shortcut to Steam profile badge page.
 - **Preserved:** Badge filtering and auto-crafting remain exclusive to the signed-in account's own badge pages.
 
 ### 1.9.0 - 2026-07-28
