@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Steam Page Tools
+// @name         Steam Page Tools 
 // @namespace    local.steam-page-tools
 // @version      1.9.0
 // @description  Adds badge filtering, auto-crafting, and bulk store actions to Steam.
