@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
-// @version      1.9.0
-// @description  Adds badge filtering, auto-crafting, and bulk store actions to Steam.
+// @version      1.9.1
+// @description  Adds badge tools, SteamSets search, and bulk store actions to Steam.
 // @author       x0697x
 // @match        https://steamcommunity.com/id/*/badges*
 // @match        https://steamcommunity.com/profiles/*/badges*
@@ -592,6 +592,89 @@
             }
         }
 
+        function buildSteamSetsPromo() {
+            const promo = document.createElement('a');
+
+            promo.id = 'spt-steamsets-promo';
+            promo.href = 'https://beta.steamsets.com/badges/search';
+            promo.target = '_blank';
+            promo.rel = 'noopener noreferrer';
+            promo.title = 'Open SteamSets badge search tools';
+            promo.setAttribute(
+                'aria-label',
+                'Search badges with SteamSets (opens in a new tab)'
+            );
+            promo.style.cssText =
+                'display:inline-flex; align-items:center; gap:5px; width:auto; height:22px; box-sizing:border-box; padding:1px 7px 1px 5px; border:1px solid rgba(178,99,236,.42); border-radius:3px; background:rgba(13,12,19,.72); color:#fff; text-decoration:none; font-family:"Motiva Sans",Arial,sans-serif; flex:0 0 auto; transition:background-color .15s,border-color .15s,box-shadow .15s;';
+
+            // SteamSets' official mark is inline so the userscript remains
+            // standalone and the logo keeps its transparent background.
+            const icon = document.createElement('span');
+
+            icon.setAttribute('aria-hidden', 'true');
+            icon.style.cssText =
+                'display:flex; width:17px; height:17px; flex:0 0 17px;';
+            icon.innerHTML = `
+                <svg viewBox="0 0 134 130" fill="none" style="display:block;width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M117.646 45.2406L133.817 107.179C134.569 110.018 132.939 112.341 130.181 112.341H65.4969C63.8671 112.341 63.7417 113.373 65.2462 114.535L66.1238 115.18C69.3835 117.89 69.0074 118.793 65.2462 117.245L33.4042 104.34C30.0191 102.92 30.0191 101.888 33.2789 101.888H72.3925C77.9089 101.888 81.1687 97.2418 79.7896 91.5636L67.7536 45.1115C67.0014 42.2724 68.6313 39.9495 71.3895 39.9495H111.506C114.136 40.0785 117.02 42.4014 117.646 45.2406Z" fill="url(#spt-steamsets-gradient)"/>
+                    <path d="M16.3536 85.7563L.183 23.821C-.569 20.982 1.061 18.659 3.819 18.659H68.506C70.136 18.659 70.261 17.627 68.757 16.465L67.879 15.82C64.62 13.11 64.996 12.207 68.757 13.755L100.599 26.66C103.984 28.08 103.984 29.112 100.724 29.112H61.736C56.22 29.112 52.96 33.758 54.339 39.436L66.375 85.889C67.127 88.728 65.497 91.051 62.739 91.051H22.622C19.864 90.918 16.981 88.595 16.354 85.756Z" fill="url(#spt-steamsets-gradient)"/>
+                    <defs>
+                        <linearGradient id="spt-steamsets-gradient" x1="0" y1="18.441" x2="133.051" y2="112.649" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#7652C9"/>
+                            <stop offset="1" stop-color="#B263EC"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            `;
+
+            const copy = document.createElement('span');
+
+            copy.style.cssText =
+                'display:flex; flex-direction:column; align-items:flex-start; line-height:1; white-space:nowrap;';
+
+            const eyebrow = document.createElement('span');
+
+            eyebrow.textContent = 'BADGE SEARCH BY';
+            eyebrow.style.cssText =
+                'margin-bottom:1px; color:#9da4ad; font-size:6px; font-weight:600; line-height:6px; letter-spacing:.5px;';
+
+            const wordmark = document.createElement('span');
+
+            wordmark.style.cssText =
+                'color:#fff; font-size:11px; font-weight:700; line-height:11px; letter-spacing:-.2px;';
+            wordmark.appendChild(document.createTextNode('Steam'));
+
+            const sets = document.createElement('span');
+
+            sets.textContent = 'Sets';
+            sets.style.color = '#a75ce5';
+            wordmark.appendChild(sets);
+
+            copy.appendChild(eyebrow);
+            copy.appendChild(wordmark);
+            promo.appendChild(icon);
+            promo.appendChild(copy);
+
+            function setHighlighted(isHighlighted) {
+                promo.style.background = isHighlighted
+                    ? 'rgba(48,38,68,.92)'
+                    : 'rgba(13,12,19,.72)';
+                promo.style.borderColor = isHighlighted
+                    ? 'rgba(178,99,236,.8)'
+                    : 'rgba(178,99,236,.42)';
+                promo.style.boxShadow = isHighlighted
+                    ? '0 0 0 1px rgba(118,82,201,.18)'
+                    : '';
+            }
+
+            promo.addEventListener('mouseenter', () => setHighlighted(true));
+            promo.addEventListener('mouseleave', () => setHighlighted(false));
+            promo.addEventListener('focus', () => setHighlighted(true));
+            promo.addEventListener('blur', () => setHighlighted(false));
+
+            return promo;
+        }
+
         function insertControl() {
             const rows = getRows();
 
@@ -599,29 +682,36 @@
                 return false;
             }
 
-            // The toolbar contains a destructive action, so expose it only
-            // when the viewed profile belongs to the signed-in account.
-            if (!isProbablyOwnProfilePage()) {
-                return true;
-            }
-
-            // Separate status and action groups so empty status text does not
-            // add spacing between the buttons.
             const bar = document.createElement('div');
 
             bar.style.cssText =
                 'display:flex; align-items:center; justify-content:flex-end; gap:10px; margin:10px 0; flex-wrap:wrap;';
 
-            const statusGroup = document.createElement('div');
-
-            statusGroup.style.cssText =
-                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:1 1 320px; min-width:0; flex-wrap:wrap;';
-
             const actionGroup = document.createElement('div');
 
             actionGroup.id = 'spt-badge-actions';
             actionGroup.style.cssText =
-                'display:flex; align-items:center; gap:4px; flex:0 0 auto; margin-left:auto;';
+                'display:flex; align-items:center; justify-content:flex-end; gap:4px; flex:0 1 auto; margin-left:auto; flex-wrap:wrap;';
+
+            const steamSetsPromo = buildSteamSetsPromo();
+
+            const container = rows[0].parentElement;
+
+            // Advertise badge search on every profile, but keep the
+            // account-specific tools exclusive to the signed-in owner.
+            if (!isProbablyOwnProfilePage()) {
+                actionGroup.appendChild(steamSetsPromo);
+                bar.appendChild(actionGroup);
+                container.insertBefore(bar, rows[0]);
+                return true;
+            }
+
+            // Separate status and action groups so empty status text does not
+            // add spacing between the buttons.
+            const statusGroup = document.createElement('div');
+
+            statusGroup.style.cssText =
+                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:1 1 320px; min-width:0; flex-wrap:wrap;';
 
             const status = document.createElement('span');
 
@@ -662,10 +752,9 @@
             statusGroup.appendChild(craftStatus);
             actionGroup.appendChild(toggle);
             actionGroup.appendChild(autoCraft);
+            actionGroup.appendChild(steamSetsPromo);
             bar.appendChild(statusGroup);
             bar.appendChild(actionGroup);
-
-            const container = rows[0].parentElement;
 
             container.insertBefore(bar, rows[0]);
 
