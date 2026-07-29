@@ -8,6 +8,7 @@ An experimental Steam Page Tools build that adds an opt-in Steam Families availa
 
 > [!IMPORTANT]
 > This is a test branch for validating the Steam Families filter. It is not the stable release.
+> Use the [stable release and installation instructions](https://github.com/x0697x/steam-page-tools#installation) for the supported build.
 
 ## Contents
 
