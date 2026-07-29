@@ -16,11 +16,6 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
-### 1.9.1 - 2026-07-29
-
-- **Added:** A compact SteamSets badge-search shortcut to Steam profile badge page.
-- **Preserved:** Badge filtering and auto-crafting remain exclusive to the signed-in account's own badge pages.
-
 ### 1.9.0 - 2026-07-28
 
 - **Added:** Safe badge auto-crafting with confirmation, live progress, reward rescans, rate-limit handling, cross-tab protection, safety limits, and stop controls.
@@ -31,7 +26,7 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ### Badge pages
 
-The SteamSets shortcut is available on every Steam profile badge page. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
+These tools are available only on the signed-in account's own badge pages.
 
 - Show only games with card drops remaining across paginated badge results.
 - Auto-craft complete card sets across your badge pages, with confirmation, live progress, request pacing, rate-limit handling, cross-tab protection, safety limits, and a stop-after-current-request control.
@@ -39,7 +34,7 @@ The SteamSets shortcut is available on every Steam profile badge page. Badge fil
 > [!WARNING]
 > Auto-crafting consumes cards and cannot be undone. The script asks for confirmation before crafting begins.
 
-<img src="https://i.ibb.co/JFW5R6XV/image.png" alt="Steam badge filter and auto-craft controls">
+<img src="https://i.ibb.co/pj09Cs4t/Screenshot-2026-07-28-173351.png" alt="Steam badge filter and auto-craft controls">
 
 ### Steam Store search results
 
