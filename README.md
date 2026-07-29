@@ -4,7 +4,10 @@
 
 # Steam Page Tools
 
-A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Community badge pages and Steam Store search results.
+An experimental Steam Page Tools build that adds an opt-in Steam Families availability filter to Steam Store search results.
+
+> [!IMPORTANT]
+> This is a test branch for validating the Steam Families filter. It is not the stable release.
 
 ## Contents
 
@@ -12,9 +15,7 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 - [Features](#features)
   - [Badge pages](#badge-pages)
   - [Steam Store search results](#steam-store-search-results)
-- [Installation](#installation)
-  - [Violentmonkey](#violentmonkey)
-  - [Tampermonkey](#tampermonkey)
+- [Test installation](#test-installation)
 
 ## Changelog
 
@@ -55,45 +56,9 @@ The family filter is off by default and leaves all results visible if Steam's fa
 
 <img src="https://i.ibb.co/wFfwYrVW/Screenshot-2026-07-26-012816.png" alt="Selection checkboxes on Steam search results"><img src="https://i.ibb.co/yc324R1q/image.png" alt="Bulk cart and wishlist action bar">
 
-## Installation
+## Test installation
 
-The instructions and extension links below are for Chrome and Chromium-based browsers.
-
-### Violentmonkey
-
-1. Install [Violentmonkey from the Chrome Web Store](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag).
-2. Open the **Violentmonkey Dashboard**, then click **+**.
-
-   <img src="https://i.ibb.co/7tBnYGh3/vkc-CFS1-Imgur.png" alt="Violentmonkey add-script button">
-
-3. Click **Install from URL**, then paste:
-
-   ```text
-   https://raw.githubusercontent.com/x0697x/steam-page-tools/main/steam-page-tools.user.js
-   ```
-
-4. Click **Install**.
-
-   <img src="https://i.ibb.co/JFHwDPYM/Screenshot-2026-07-27-234845.png" alt="Violentmonkey install confirmation">
-
-5. On the extension's **Details** page, enable **Allow User Scripts**.
-
-   <img src="https://i.ibb.co/276vh13d/Screenshot-2026-07-24-094639.png" alt="Chrome extension details">
-   <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts setting">
-
-### Tampermonkey
-
-1. Install [Tampermonkey from the Chrome Web Store](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
-2. Open [Steam Page Tools on Greasy Fork](https://greasyfork.org/en/scripts/588294-steam-page-tools).
-3. Click **Install this script**.
-
-   <img src="https://i.ibb.co/dJmrckCt/image.png" alt="Greasy Fork install button">
-
-4. Confirm by clicking **Install**.
-
-   <img src="https://i.ibb.co/9HRN1pkR/image.png" alt="Tampermonkey install confirmation">
-
-5. On the extension's **Details** page, enable **Allow User Scripts**.
-
-   <img src="https://i.ibb.co/6J8nRzzw/image.png" alt="Chrome extension details">
-   <img src="https://i.ibb.co/vvXhBPwC/Screenshot-2026-07-24-094645.png" alt="Allow User Scripts setting">
+1. Install [Violentmonkey](https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag) or [Tampermonkey](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
+2. Open [the Steam Families filter test-branch userscript](https://raw.githubusercontent.com/x0697x/steam-page-tools/refs/heads/test-family-shared-filter/steam-page-tools.user.js).
+3. Confirm the installation in your userscript manager.
+4. On Chrome and Chromium browsers, enable **Allow User Scripts** on the extension's details page if required.
