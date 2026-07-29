@@ -39,7 +39,7 @@ The SteamSets shortcut is available on every Steam profile badge page. Badge fil
 > [!WARNING]
 > Auto-crafting consumes cards and cannot be undone. The script asks for confirmation before crafting begins.
 
-<img src="https://i.ibb.co/pj09Cs4t/Screenshot-2026-07-28-173351.png" alt="Steam badge filter and auto-craft controls">
+<img src="https://i.ibb.co/JFW5R6XV/image.png" alt="Steam badge filter and auto-craft controls">
 
 ### Steam Store search results
 
