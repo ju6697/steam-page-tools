@@ -2,7 +2,7 @@
   <img src="https://i.ibb.co/wr0d9jH3/diagram.png" alt="Steam Page Tools" width="150">
 </p>
 
-# 
+# Steam Page Tools
 
 A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Community badge pages and Steam Store search results.
 
