@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
-// @version      1.9.0
-// @description  Adds badge filtering, auto-crafting, and bulk store actions to Steam.
+// @version      1.10.1
+// @description  Adds cross-page badge search, badge tools, and bulk store actions to Steam.
 // @author       x0697x
 // @match        https://steamcommunity.com/id/*/badges*
 // @match        https://steamcommunity.com/profiles/*/badges*
@@ -62,6 +62,39 @@
 
         function getRows(root = document) {
             return [...root.querySelectorAll('.badge_row')];
+        }
+
+        function normalizeBadgeSearchText(value) {
+            return String(value || '')
+                .normalize('NFKD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLocaleLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // A badge_info_title is rendered only when this profile owns the
+        // badge. Index both its badge name and the parent game/event title.
+        function getOwnedBadgeSearchText(row) {
+            const badgeName = row.querySelector(
+                '.badge_info_title'
+            )?.textContent.trim();
+
+            if (!badgeName) {
+                return null;
+            }
+
+            const title = row.querySelector('.badge_title');
+            const gameName = title
+                ? [...title.childNodes]
+                    .filter((node) => node.nodeType === 3)
+                    .map((node) => node.textContent.trim())
+                    .find(Boolean) || ''
+                : '';
+
+            return normalizeBadgeSearchText(
+                `${gameName} ${badgeName}`
+            );
         }
 
         // Steam renders the "Play Game" control only while a badge has card
@@ -592,6 +625,278 @@
             }
         }
 
+        // Rows parsed from fetched badge pages retain Steam's transparent
+        // placeholder. Steam's page script normally promotes this attribute
+        // when a row enters the viewport, but it does not observe our clones.
+        function activateDelayedBadgeArtwork(row) {
+            row.querySelectorAll('img[data-delayed-image]')
+                .forEach((image) => {
+                    const source = image.getAttribute(
+                        'data-delayed-image'
+                    );
+
+                    if (!source) {
+                        return;
+                    }
+
+                    image.src = source;
+                    image.loading = 'lazy';
+                    image.decoding = 'async';
+                    image.removeAttribute('data-delayed-image');
+                    image.removeAttribute('data-delayed-image-group');
+                });
+        }
+
+        function insertBadgeSearch(container, currentRows) {
+            const searchBar = document.createElement('div');
+
+            searchBar.id = 'spt-owned-badge-search';
+            searchBar.style.cssText =
+                'display:flex; align-items:center; justify-content:flex-end; gap:10px; margin:10px 0; flex-wrap:wrap;';
+
+            const input = document.createElement('input');
+
+            input.id = 'spt-owned-badge-search-input';
+            input.type = 'search';
+            input.placeholder = 'Search owned badges...';
+            input.setAttribute(
+                'aria-label',
+                'Search this profile\u2019s owned badges'
+            );
+            input.autocomplete = 'off';
+            input.spellcheck = false;
+            input.maxLength = 100;
+            input.style.cssText =
+                'width:320px; max-width:100%; height:32px; box-sizing:border-box; padding:0 10px; border:1px solid #000; border-radius:3px; background:#2a3f5a; color:#fff; font-family:"Motiva Sans",Arial,sans-serif; font-size:14px; box-shadow:1px 1px 0 rgba(255,255,255,.1);';
+
+            const searchStatus = document.createElement('span');
+
+            searchStatus.id = 'spt-owned-badge-search-status';
+            searchStatus.setAttribute('role', 'status');
+            searchStatus.setAttribute('aria-live', 'polite');
+            searchStatus.style.cssText =
+                'color:#8f98a0; font-size:12px; margin-left:auto; text-align:right;';
+
+            searchBar.appendChild(searchStatus);
+            searchBar.appendChild(input);
+            container.insertBefore(searchBar, currentRows[0]);
+
+            let indexedBadges = null;
+            let indexPromise = null;
+            let resultClones = [];
+            let searchActive = false;
+            let searchVersion = 0;
+            let debounceTimer = null;
+            let beforeSearch = () => {};
+
+            function removeResultClones() {
+                resultClones.forEach((row) => row.remove());
+                resultClones = [];
+            }
+
+            function clearSearch(resetInput = true) {
+                clearTimeout(debounceTimer);
+                searchVersion += 1;
+
+                if (resetInput) {
+                    input.value = '';
+                }
+
+                removeResultClones();
+
+                if (searchActive) {
+                    currentRows.forEach((row) => {
+                        row.style.display = '';
+                    });
+                }
+
+                searchActive = false;
+                searchStatus.textContent = '';
+            }
+
+            async function buildBadgeIndex() {
+                const currentPage = getCurrentPageNumber();
+                const detectedMaxPage = Math.max(
+                    currentPage,
+                    getMaxPageFromPagination() || 1
+                );
+                const maxPage = Math.min(detectedMaxPage, MAX_PAGES);
+                const badges = [];
+                let failedPages = 0;
+
+                for (let page = 1; page <= maxPage; page += 1) {
+                    if (input.value.trim()) {
+                        searchStatus.textContent =
+                            `Loading owned badges: page ${page} of ${maxPage}...`;
+                    }
+
+                    let pageRows;
+
+                    if (page === currentPage) {
+                        pageRows = currentRows;
+                    } else {
+                        pageRows = await fetchPageRowsWithRetry(page);
+                    }
+
+                    if (pageRows === null) {
+                        failedPages += 1;
+                        continue;
+                    }
+
+                    pageRows.forEach((row) => {
+                        const text = getOwnedBadgeSearchText(row);
+
+                        if (text) {
+                            badges.push({ row, text });
+                        }
+                    });
+
+                    if (page < maxPage) {
+                        await sleep(100);
+                    }
+                }
+
+                return {
+                    badges,
+                    failedPages,
+                    maxPage,
+                    truncated: detectedMaxPage > MAX_PAGES,
+                };
+            }
+
+            async function getBadgeIndex() {
+                if (indexedBadges) {
+                    return indexedBadges;
+                }
+
+                if (!indexPromise) {
+                    indexPromise = buildBadgeIndex()
+                        .then((index) => {
+                            indexedBadges = index;
+                            return index;
+                        })
+                        .finally(() => {
+                            indexPromise = null;
+                        });
+                }
+
+                return indexPromise;
+            }
+
+            function renderResults(index, rawQuery) {
+                const query = normalizeBadgeSearchText(rawQuery);
+                const terms = query.split(' ').filter(Boolean);
+                const matches = index.badges.filter(({ text }) => (
+                    terms.every((term) => text.includes(term))
+                ));
+
+                removeResultClones();
+                currentRows.forEach((row) => {
+                    row.style.display = 'none';
+                });
+
+                matches.forEach(({ row }) => {
+                    const clone = row.cloneNode(true);
+
+                    clone.removeAttribute('id');
+                    clone.dataset.sptBadgeSearchClone = '1';
+                    clone.style.display = '';
+                    activateDelayedBadgeArtwork(clone);
+                    container.appendChild(clone);
+                    resultClones.push(clone);
+                });
+
+                const countText = matches.length === 1
+                    ? '1 owned badge'
+                    : `${matches.length} owned badges`;
+                const notes = [];
+
+                if (index.failedPages) {
+                    notes.push(
+                        `${index.failedPages} page(s) could not be loaded`
+                    );
+                }
+
+                if (index.truncated) {
+                    notes.push(`search limited to ${MAX_PAGES} pages`);
+                }
+
+                searchStatus.textContent =
+                    `Found ${countText} across ${index.maxPage} page(s).` +
+                    (notes.length ? ` ${notes.join('; ')}.` : '');
+            }
+
+            async function runSearch(rawQuery) {
+                const version = ++searchVersion;
+
+                beforeSearch();
+                searchActive = true;
+                removeResultClones();
+                currentRows.forEach((row) => {
+                    row.style.display = 'none';
+                });
+                searchStatus.textContent = 'Loading owned badges...';
+
+                const index = await getBadgeIndex();
+
+                if (
+                    version !== searchVersion ||
+                    !input.value.trim()
+                ) {
+                    return;
+                }
+
+                renderResults(index, rawQuery);
+            }
+
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                searchVersion += 1;
+
+                if (!input.value.trim()) {
+                    clearSearch(false);
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    runSearch(input.value).catch((err) => {
+                        console.error(
+                            'Steam Page Tools: badge search failed',
+                            err
+                        );
+
+                        if (input.value.trim()) {
+                            currentRows.forEach((row) => {
+                                row.style.display = '';
+                            });
+                            searchActive = false;
+                            searchStatus.textContent =
+                                'Badge search could not be loaded. Try again.';
+                        }
+                    });
+                }, 200);
+            });
+
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && input.value) {
+                    event.preventDefault();
+                    clearSearch();
+                    input.focus();
+                }
+            });
+
+            return {
+                clear: clearSearch,
+                setBeforeSearch(handler) {
+                    beforeSearch = handler;
+                },
+                setDisabled(isDisabled) {
+                    input.disabled = isDisabled;
+                    input.style.opacity = isDisabled ? '0.6' : '';
+                },
+            };
+        }
+
         function insertControl() {
             const rows = getRows();
 
@@ -599,8 +904,11 @@
                 return false;
             }
 
-            // The toolbar contains a destructive action, so expose it only
-            // when the viewed profile belongs to the signed-in account.
+            const container = rows[0].parentElement;
+            const badgeSearch = insertBadgeSearch(container, rows);
+
+            // Search is useful on every profile. Keep destructive and
+            // account-specific tools exclusive to the signed-in owner.
             if (!isProbablyOwnProfilePage()) {
                 return true;
             }
@@ -665,8 +973,6 @@
             bar.appendChild(statusGroup);
             bar.appendChild(actionGroup);
 
-            const container = rows[0].parentElement;
-
             container.insertBefore(bar, rows[0]);
 
             let active = false;
@@ -689,6 +995,7 @@
 
             function setCraftBusy(isBusy) {
                 craftBusy = isBusy;
+                badgeSearch.setDisabled(isBusy);
 
                 toggle.style.pointerEvents = isBusy || busy ? 'none' : '';
                 toggle.style.opacity = isBusy || busy ? '0.6' : '';
@@ -726,6 +1033,29 @@
                     isActive ? 'inset 0 0 0 1px #67c1f1' : '';
             }
 
+            function resetDropFilter() {
+                active = false;
+                setActiveStyle(false);
+
+                getRows().forEach((row) => {
+                    row.style.display = '';
+                });
+
+                extraRows.forEach((row) => {
+                    row.remove();
+                });
+
+                extraRows = [];
+                status.textContent = '';
+                setBusy(false);
+            }
+
+            badgeSearch.setBeforeSearch(() => {
+                if (active || busy) {
+                    resetDropFilter();
+                }
+            });
+
             async function runFilter() {
                 getRows().forEach((row) => {
                     row.style.display = hasDropsRemaining(row) ? '' : 'none';
@@ -759,6 +1089,10 @@
                         continue;
                     }
 
+                    if (!active) {
+                        break;
+                    }
+
                     // Preserve every row: normal and foil badges share an app
                     // ID and detail URL but represent separate drop states.
                     rows
@@ -767,6 +1101,7 @@
                             const clone = row.cloneNode(true);
 
                             clone.dataset.sptDropFilterClone = '1';
+                            activateDelayedBadgeArtwork(clone);
                             container.appendChild(clone);
                             extraRows.push(clone);
                         });
@@ -774,12 +1109,14 @@
                     await sleep(200);
                 }
 
-                const visibleCount = getRows()
-                    .filter((r) => r.style.display !== 'none')
-                    .length;
+                if (active) {
+                    const visibleCount = getRows()
+                        .filter((r) => r.style.display !== 'none')
+                        .length;
 
-                status.textContent =
-                    `Showing ${visibleCount} games with drops remaining across all pages.`;
+                    status.textContent =
+                        `Showing ${visibleCount} games with drops remaining across all pages.`;
+                }
 
                 setBusy(false);
             }
@@ -789,26 +1126,19 @@
                     return;
                 }
 
-                active = !active;
+                const activating = !active;
 
-                setActiveStyle(active);
+                if (activating) {
+                    badgeSearch.clear();
+                }
 
-                if (!active) {
-                    getRows().forEach((row) => {
-                        row.style.display = '';
-                    });
-
-                    extraRows.forEach((row) => {
-                        row.remove();
-                    });
-
-                    extraRows = [];
-
-                    status.textContent = '';
-
+                if (!activating) {
+                    resetDropFilter();
                     return;
                 }
 
+                active = true;
+                setActiveStyle(true);
                 await runFilter();
             }
 
@@ -844,7 +1174,8 @@
                     if (page === currentPage && !freshAllPages) {
                         pageRows = getRows()
                             .filter((row) => (
-                                !row.dataset.sptDropFilterClone
+                                !row.dataset.sptDropFilterClone &&
+                                !row.dataset.sptBadgeSearchClone
                             ));
                     } else {
                         pageRows = await fetchPageRowsWithRetry(page);
@@ -1147,6 +1478,7 @@
                 }
 
                 stopCrafting = false;
+                badgeSearch.clear();
                 setCraftBusy(true);
 
                 const summary = {

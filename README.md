@@ -16,6 +16,15 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
+### 1.10.1 - 2026-07-31
+
+- **Fixed:** Badge artwork now loads in cloned cross-page search and card-drop results.
+- **Changed:** The badge search field is aligned to the right.
+
+### 1.10.0 - 2026-07-31
+
+- **Added:** Search owned badges by game or badge name across every paginated badge page, including on other users' profiles.
+
 ### 1.9.0 - 2026-07-28
 
 - **Added:** Safe badge auto-crafting with confirmation, live progress, reward rescans, rate-limit handling, cross-tab protection, safety limits, and stop controls.
@@ -26,8 +35,9 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ### Badge pages
 
-These tools are available only on the signed-in account's own badge pages.
+Badge search is available on every profile. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
 
+- Search the profile's owned badges by game or badge name across all paginated results.
 - Show only games with card drops remaining across paginated badge results.
 - Auto-craft complete card sets across your badge pages, with confirmation, live progress, request pacing, rate-limit handling, cross-tab protection, safety limits, and a stop-after-current-request control.
 
