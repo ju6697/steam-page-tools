@@ -16,6 +16,12 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
+### 1.10.4 - 2026-07-31
+
+- **Changed:** Badge-search loading and result status now appears directly below the search field.
+- **Fixed:** Search progress no longer moves or wraps the badge counter and action controls.
+- **Synchronized:** Userscript behavior matches the corresponding browser-extension main update.
+
 ### 1.10.3 - 2026-07-31
 
 - **Added:** Automatic cross-page count of games with card drops remaining, with progressive results and scan completion state.
