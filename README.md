@@ -44,7 +44,7 @@ Badge search is available on every profile. Badge filtering and auto-crafting ar
 > [!WARNING]
 > Auto-crafting consumes cards and cannot be undone. The script asks for confirmation before crafting begins.
 
-<img src="https://i.ibb.co/pj09Cs4t/Screenshot-2026-07-28-173351.png" alt="Steam badge filter and auto-craft controls">
+<img src="https://i.ibb.co/SXL186Sk/image.png" alt="Steam badge">
 
 ### Steam Store search results
 
