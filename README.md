@@ -16,6 +16,12 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
+### 1.10.2 - 2026-07-31
+
+- **Changed:** Cross-page badge-search matches are shown together in one result view.
+- **Fixed:** Steam's unrelated page summary and navigation are hidden while searching and restored when the query is cleared or search loading fails.
+- **Synchronized:** Userscript behavior now matches the browser extension's `main` branch.
+
 ### 1.10.1 - 2026-07-31
 
 - **Fixed:** Badge artwork now loads in cloned cross-page search and card-drop results.
@@ -35,7 +41,7 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ### Badge pages
 
-Badge search is available on every profile. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
+Badge search is available on every profile. It collects matches from every paginated result into one view and temporarily hides Steam's server-side pagination. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
 
 - Search the profile's owned badges by game or badge name across all paginated results.
 - Show only games with card drops remaining across paginated badge results.

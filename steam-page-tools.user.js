@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
-// @version      1.10.1
+// @version      1.10.2
 // @description  Adds cross-page badge search, badge tools, and bulk store actions to Steam.
 // @author       x0697x
 // @match        https://steamcommunity.com/id/*/badges*
@@ -14,8 +14,51 @@
 // @homepageURL  https://github.com/x0697x/steam-page-tools
 // ==/UserScript==
 
+// Copyright (C) 2026 x0697x
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 (function () {
     'use strict';
+
+    const STEAM_COMMUNITY_ORIGIN = 'https://steamcommunity.com';
+    const STEAM_STORE_ORIGIN = 'https://store.steampowered.com';
+
+    function parsePinnedSteamUrl(value, requiredOrigin, base = requiredOrigin) {
+        try {
+            const url = new URL(value, base);
+
+            return url.origin === requiredOrigin ? url : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function requirePinnedSteamUrl(value, requiredOrigin, base) {
+        const url = parsePinnedSteamUrl(value, requiredOrigin, base);
+
+        if (!url) {
+            const err = new Error(
+                `Refusing a URL outside ${requiredOrigin}`
+            );
+
+            err.fatal = true;
+            throw err;
+        }
+
+        return url;
+    }
+
+    function requirePinnedSteamResponseUrl(
+        response,
+        requiredOrigin,
+        requestUrl
+    ) {
+        return requirePinnedSteamUrl(
+            response.url || requestUrl,
+            requiredOrigin,
+            requestUrl
+        );
+    }
 
     function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,9 +84,9 @@
         });
     }
 
-    if (location.hostname === 'steamcommunity.com') {
+    if (location.origin === STEAM_COMMUNITY_ORIGIN) {
         initBadgesPageTools();
-    } else if (location.hostname === 'store.steampowered.com') {
+    } else if (location.origin === STEAM_STORE_ORIGIN) {
         initSearchBulkCart();
     }
 
@@ -114,7 +157,10 @@
 
         function getCurrentPageNumber() {
             const page = parseInt(
-                new URL(location.href).searchParams.get('p') || '1',
+                requirePinnedSteamUrl(
+                    location.href,
+                    STEAM_COMMUNITY_ORIGIN
+                ).searchParams.get('p') || '1',
                 10
             );
 
@@ -122,13 +168,29 @@
         }
 
         function buildPageUrl(pageNum) {
-            const url = new URL(location.href);
+            const url = requirePinnedSteamUrl(
+                location.href,
+                STEAM_COMMUNITY_ORIGIN
+            );
+
             url.searchParams.set('p', pageNum);
+
             return url.toString();
         }
 
         async function fetchPageRows(pageNum) {
-            const res = await fetch(buildPageUrl(pageNum), { credentials: 'include' });
+            const pageUrl = requirePinnedSteamUrl(
+                buildPageUrl(pageNum),
+                STEAM_COMMUNITY_ORIGIN
+            );
+            const res = await fetch(pageUrl, { credentials: 'include' });
+
+            requirePinnedSteamResponseUrl(
+                res,
+                STEAM_COMMUNITY_ORIGIN,
+                pageUrl
+            );
+
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const html = await res.text();
@@ -140,14 +202,21 @@
         // Read Steam's pagination instead of inferring the page count from
         // fetched content. Callers include the current page, which is a span.
         function getMaxPageFromPagination() {
-            const here = new URL(location.href);
+            const here = requirePinnedSteamUrl(
+                location.href,
+                STEAM_COMMUNITY_ORIGIN
+            );
 
             const values = [...document.querySelectorAll('a[href*="p="]')]
                 .map((a) => {
                     try {
-                        const url = new URL(a.href, location.href);
+                        const url = parsePinnedSteamUrl(
+                            a.href,
+                            STEAM_COMMUNITY_ORIGIN,
+                            location.href
+                        );
 
-                        if (url.pathname !== here.pathname) {
+                        if (!url || url.pathname !== here.pathname) {
                             return NaN;
                         }
 
@@ -197,12 +266,23 @@
             }
 
             try {
-                const parsed = new URL(url, location.href);
+                const parsed = parsePinnedSteamUrl(
+                    url,
+                    STEAM_COMMUNITY_ORIGIN,
+                    location.href
+                );
+
+                if (!parsed) {
+                    return null;
+                }
+
                 const match = parsed.pathname.match(
                     /^\/(?:id\/[^/]+|profiles\/\d+)/i
                 );
 
-                return match ? `${parsed.origin}${match[0]}` : null;
+                return match
+                    ? `${STEAM_COMMUNITY_ORIGIN}${match[0]}`
+                    : null;
             } catch {
                 return null;
             }
@@ -265,14 +345,23 @@
             }
 
             try {
-                const res = await fetch(`${location.origin}/my/badges/`, {
+                const ownershipUrl = requirePinnedSteamUrl(
+                    '/my/badges/',
+                    STEAM_COMMUNITY_ORIGIN
+                );
+                const res = await fetch(ownershipUrl, {
                     credentials: 'include',
                 });
+                const redirectUrl = requirePinnedSteamResponseUrl(
+                    res,
+                    STEAM_COMMUNITY_ORIGIN,
+                    ownershipUrl
+                );
 
                 return Boolean(
                     res.ok &&
-                    res.url &&
-                    normalizeProfileUrl(res.url) ===
+                    redirectUrl &&
+                    normalizeProfileUrl(redirectUrl) ===
                         normalizeProfileUrl(profileUrl)
                 );
             } catch (err) {
@@ -315,7 +404,16 @@
                 return null;
             }
 
-            const detailUrl = new URL(button.href, location.href);
+            const detailUrl = parsePinnedSteamUrl(
+                button.href,
+                STEAM_COMMUNITY_ORIGIN,
+                location.href
+            );
+
+            if (!detailUrl) {
+                return null;
+            }
+
             const appMatch = detailUrl.pathname.match(
                 /\/gamecards\/(\d+)(?:\/|$)/i
             );
@@ -358,9 +456,18 @@
         }
 
         async function fetchCraftOptionOnce(target) {
-            const res = await fetch(target.detailUrl, {
+            const detailUrl = requirePinnedSteamUrl(
+                target.detailUrl,
+                STEAM_COMMUNITY_ORIGIN
+            );
+            const res = await fetch(detailUrl, {
                 credentials: 'include',
             });
+            const responseUrl = requirePinnedSteamResponseUrl(
+                res,
+                STEAM_COMMUNITY_ORIGIN,
+                detailUrl
+            );
 
             if (!res.ok) {
                 const err = new Error(`HTTP ${res.status}`);
@@ -370,8 +477,6 @@
             }
 
             if (res.url) {
-                const responseUrl = new URL(res.url, target.detailUrl);
-
                 if (/\/login(?:\/|$)/i.test(responseUrl.pathname)) {
                     const err = new Error('Steam asked you to sign in again');
 
@@ -459,6 +564,10 @@
         }
 
         async function postCraft(target, levels, sessionid) {
+            const craftUrl = requirePinnedSteamUrl(
+                `${profileUrl}/ajaxcraftbadge/`,
+                STEAM_COMMUNITY_ORIGIN
+            );
             const body = new URLSearchParams({
                 appid: target.appid,
                 series: target.series,
@@ -470,7 +579,7 @@
             let res;
 
             try {
-                res = await fetch(`${profileUrl}/ajaxcraftbadge/`, {
+                res = await fetch(craftUrl, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -479,7 +588,16 @@
                     },
                     body: body.toString(),
                 });
+                requirePinnedSteamResponseUrl(
+                    res,
+                    STEAM_COMMUNITY_ORIGIN,
+                    craftUrl
+                );
             } catch (cause) {
+                if (cause.fatal) {
+                    throw cause;
+                }
+
                 const err = new Error('The craft response was not received');
 
                 err.ambiguous = true;
@@ -681,6 +799,26 @@
             searchBar.appendChild(input);
             container.insertBefore(searchBar, currentRows[0]);
 
+            // Search aggregates every matching row onto this page. Preserve
+            // Steam's inline pagination styles so the server-side pager can be
+            // hidden for search mode and restored exactly when it ends.
+            let paginationElements = [
+                ...document.querySelectorAll('.profile_paging'),
+            ];
+
+            if (!paginationElements.length) {
+                paginationElements = [
+                    ...document.querySelectorAll(
+                        '.profile_paging_summary, .profile_paging_links'
+                    ),
+                ];
+            }
+
+            const paginationDisplays = new Map(
+                paginationElements.map((element) => (
+                    [element, element.style.display]
+                ))
+            );
             let indexedBadges = null;
             let indexPromise = null;
             let resultClones = [];
@@ -689,13 +827,19 @@
             let debounceTimer = null;
             let beforeSearch = () => {};
 
+            function setPaginationHidden(isHidden) {
+                paginationDisplays.forEach((display, element) => {
+                    element.style.display = isHidden ? 'none' : display;
+                });
+            }
+
             function removeResultClones() {
                 resultClones.forEach((row) => row.remove());
                 resultClones = [];
             }
 
             function clearSearch(resetInput = true) {
-                clearTimeout(debounceTimer);
+                window.clearTimeout(debounceTimer);
                 searchVersion += 1;
 
                 if (resetInput) {
@@ -711,6 +855,7 @@
                 }
 
                 searchActive = false;
+                setPaginationHidden(false);
                 searchStatus.textContent = '';
             }
 
@@ -809,6 +954,9 @@
                 const countText = matches.length === 1
                     ? '1 owned badge'
                     : `${matches.length} owned badges`;
+                const sourcePageText = index.maxPage === 1
+                    ? '1 source page'
+                    : `${index.maxPage} source pages`;
                 const notes = [];
 
                 if (index.failedPages) {
@@ -822,7 +970,8 @@
                 }
 
                 searchStatus.textContent =
-                    `Found ${countText} across ${index.maxPage} page(s).` +
+                    `Found ${countText} across ${sourcePageText}. ` +
+                    'All matches are shown below.' +
                     (notes.length ? ` ${notes.join('; ')}.` : '');
             }
 
@@ -831,6 +980,7 @@
 
                 beforeSearch();
                 searchActive = true;
+                setPaginationHidden(true);
                 removeResultClones();
                 currentRows.forEach((row) => {
                     row.style.display = 'none';
@@ -850,7 +1000,7 @@
             }
 
             input.addEventListener('input', () => {
-                clearTimeout(debounceTimer);
+                window.clearTimeout(debounceTimer);
                 searchVersion += 1;
 
                 if (!input.value.trim()) {
@@ -858,6 +1008,7 @@
                     return;
                 }
 
+                setPaginationHidden(true);
                 debounceTimer = setTimeout(() => {
                     runSearch(input.value).catch((err) => {
                         console.error(
@@ -870,6 +1021,7 @@
                                 row.style.display = '';
                             });
                             searchActive = false;
+                            setPaginationHidden(false);
                             searchStatus.textContent =
                                 'Badge search could not be loaded. Try again.';
                         }
@@ -908,7 +1060,7 @@
             const badgeSearch = insertBadgeSearch(container, rows);
 
             // Search is useful on every profile. Keep destructive and
-            // account-specific tools exclusive to the signed-in owner.
+            // account-specific controls exclusive to the signed-in owner.
             if (!isProbablyOwnProfilePage()) {
                 return true;
             }
@@ -920,16 +1072,16 @@
             bar.style.cssText =
                 'display:flex; align-items:center; justify-content:flex-end; gap:10px; margin:10px 0; flex-wrap:wrap;';
 
-            const statusGroup = document.createElement('div');
-
-            statusGroup.style.cssText =
-                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:1 1 320px; min-width:0; flex-wrap:wrap;';
-
             const actionGroup = document.createElement('div');
 
             actionGroup.id = 'spt-badge-actions';
             actionGroup.style.cssText =
                 'display:flex; align-items:center; gap:4px; flex:0 0 auto; margin-left:auto;';
+
+            const statusGroup = document.createElement('div');
+
+            statusGroup.style.cssText =
+                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:1 1 320px; min-width:0; flex-wrap:wrap;';
 
             const status = document.createElement('span');
 
@@ -1087,10 +1239,6 @@
 
                     if (rows === null) {
                         continue;
-                    }
-
-                    if (!active) {
-                        break;
                     }
 
                     // Preserve every row: normal and foil badges share an app
@@ -1843,7 +1991,11 @@
 
             if (raw) {
                 // Comma-separated app IDs identify an unsupported bundle.
-                return raw.includes(',') ? null : raw.trim();
+                const appid = raw.trim();
+
+                return !raw.includes(',') && /^\d+$/.test(appid)
+                    ? appid
+                    : null;
             }
 
             // Fall back to the app ID embedded in the result URL.
@@ -1954,10 +2106,16 @@
                 const link = document.createElement('a');
 
                 if (destination === 'wishlist') {
-                    link.href = 'https://store.steampowered.com/wishlist/';
+                    link.href = requirePinnedSteamUrl(
+                        '/wishlist/',
+                        STEAM_STORE_ORIGIN
+                    ).href;
                     link.textContent = 'View wishlist';
                 } else {
-                    link.href = 'https://store.steampowered.com/cart/';
+                    link.href = requirePinnedSteamUrl(
+                        '/cart/',
+                        STEAM_STORE_ORIGIN
+                    ).href;
                     link.textContent = 'View cart';
                 }
 
@@ -2028,8 +2186,9 @@
         async function fetchCurrentWishlist() {
             const { accountid, country } = readStoreAccount();
             const version = bumpDynamicStoreVersion();
-            const url = new URL(
-                'https://store.steampowered.com/dynamicstore/userdata/'
+            const url = requirePinnedSteamUrl(
+                '/dynamicstore/userdata/',
+                STEAM_STORE_ORIGIN
             );
 
             url.searchParams.set('id', accountid);
@@ -2043,6 +2202,12 @@
                 cache: 'no-store',
                 headers: { Accept: 'application/json' },
             });
+
+            requirePinnedSteamResponseUrl(
+                res,
+                STEAM_STORE_ORIGIN,
+                url
+            );
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}`);
@@ -2058,13 +2223,17 @@
         }
 
         async function addAppToWishlist(appid, sessionid) {
+            const mutationUrl = requirePinnedSteamUrl(
+                '/api/addtowishlist',
+                STEAM_STORE_ORIGIN
+            );
             const body = new URLSearchParams({
                 sessionid,
                 appid: String(appid),
             });
 
             const res = await fetch(
-                'https://store.steampowered.com/api/addtowishlist',
+                mutationUrl,
                 {
                     method: 'POST',
                     credentials: 'include',
@@ -2074,6 +2243,12 @@
                     },
                     body: body.toString(),
                 }
+            );
+
+            requirePinnedSteamResponseUrl(
+                res,
+                STEAM_STORE_ORIGIN,
+                mutationUrl
             );
 
             if (!res.ok) {
@@ -2125,9 +2300,23 @@
         // Cart mutations require a package (sub) ID, so resolve Steam's
         // default purchase option for each app.
         async function resolveSubId(appid) {
-            const res = await fetch(
-                `https://store.steampowered.com/api/appdetails?appids=${appid}`,
-                { credentials: 'include' }
+            if (!/^\d+$/.test(String(appid))) {
+                throw new Error('invalid Steam app ID');
+            }
+
+            const detailsUrl = requirePinnedSteamUrl(
+                '/api/appdetails',
+                STEAM_STORE_ORIGIN
+            );
+
+            detailsUrl.searchParams.set('appids', String(appid));
+
+            const res = await fetch(detailsUrl, { credentials: 'include' });
+
+            requirePinnedSteamResponseUrl(
+                res,
+                STEAM_STORE_ORIGIN,
+                detailsUrl
             );
 
             if (!res.ok) {
@@ -2155,18 +2344,32 @@
         }
 
         async function addSubToCart(subid, sessionid) {
+            if (!/^\d+$/.test(String(subid))) {
+                throw new Error('invalid Steam package ID');
+            }
+
+            const mutationUrl = requirePinnedSteamUrl(
+                '/cart/',
+                STEAM_STORE_ORIGIN
+            );
             const body = new URLSearchParams({
                 action: 'add_to_cart',
                 sessionid,
                 subid: String(subid),
             });
 
-            const res = await fetch('https://store.steampowered.com/cart/', {
+            const res = await fetch(mutationUrl, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body.toString(),
             });
+
+            requirePinnedSteamResponseUrl(
+                res,
+                STEAM_STORE_ORIGIN,
+                mutationUrl
+            );
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}`);
