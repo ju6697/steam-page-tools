@@ -16,6 +16,13 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
+### 1.10.3 - 2026-07-31
+
+- **Added:** Automatic cross-page count of games with card drops remaining, with progressive results and scan completion state.
+- **Changed:** Badge search and account controls now share one aligned, responsive toolbar.
+- **Fixed:** Drop filtering reuses the counter scan, shows cached matches immediately, and keeps Steam pagination hidden while active.
+- **Synchronized:** Userscript behavior now matches the browser extension's final counter and filtering update.
+
 ### 1.10.2 - 2026-07-31
 
 - **Changed:** Cross-page badge-search matches are shown together in one result view.
@@ -44,6 +51,7 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 Badge search is available on every profile. It collects matches from every paginated result into one view and temporarily hides Steam's server-side pagination. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
 
 - Search the profile's owned badges by game or badge name across all paginated results.
+- Count games with card drops remaining across every paginated badge result.
 - Show only games with card drops remaining across paginated badge results.
 - Auto-craft complete card sets across your badge pages, with confirmation, live progress, request pacing, rate-limit handling, cross-tab protection, safety limits, and a stop-after-current-request control.
 
