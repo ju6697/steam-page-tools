@@ -16,6 +16,8 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 ## Changelog
 
+Only the five most recent releases are listed here.
+
 ### 1.10.4 - 2026-07-31
 
 - **Changed:** Badge-search loading and result status now appears directly below the search field.
@@ -43,12 +45,6 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 ### 1.10.0 - 2026-07-31
 
 - **Added:** Search owned badges by game or badge name across every paginated badge page, including on other users' profiles.
-
-### 1.9.0 - 2026-07-28
-
-- **Added:** Safe badge auto-crafting with confirmation, live progress, reward rescans, rate-limit handling, cross-tab protection, safety limits, and stop controls.
-- **Added:** Bulk wishlist actions that refresh the current wishlist and skip games already on it.
-- **Improved:** Badge pagination, saved-selection recovery, shared controls, and explanatory comments.
 
 ## Features
 
