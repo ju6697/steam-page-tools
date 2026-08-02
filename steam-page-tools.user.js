@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam Page Tools
 // @namespace    local.steam-page-tools
-// @version      1.10.4
+// @version      1.10.5
 // @description  Adds cross-page badge search, badge tools, and bulk store actions to Steam.
 // @author       x0697x
 // @match        https://steamcommunity.com/id/*/badges*
@@ -799,7 +799,7 @@
             input.spellcheck = false;
             input.maxLength = 100;
             input.style.cssText =
-                'width:100%; height:32px; box-sizing:border-box; padding:0 10px; border:1px solid #000; border-radius:3px; background:#2a3f5a; color:#fff; font-family:"Motiva Sans",Arial,sans-serif; font-size:14px; box-shadow:1px 1px 0 rgba(255,255,255,.1);';
+                'width:100%; height:22px; box-sizing:border-box; padding:0 8px; border:1px solid #000; border-radius:3px; background:#2a3f5a; color:#fff; font-family:"Motiva Sans",Arial,sans-serif; font-size:12px; box-shadow:1px 1px 0 rgba(255,255,255,.1);';
 
             const searchStatus = document.createElement('span');
 
@@ -833,7 +833,9 @@
 
             const paginationDisplays = new Map();
             const paginationHideReasons = new Set();
+            const indexProgressListeners = new Set();
             let indexedBadges = null;
+            let buildingBadgeIndex = null;
             let indexPromise = null;
             let resultClones = [];
             let searchActive = false;
@@ -890,6 +892,7 @@
             function clearSearch(resetInput = true) {
                 window.clearTimeout(debounceTimer);
                 searchVersion += 1;
+                indexProgressListeners.clear();
 
                 if (resetInput) {
                     input.value = '';
@@ -908,6 +911,12 @@
                 searchStatus.textContent = '';
             }
 
+            function notifyBadgeIndexProgress(update) {
+                indexProgressListeners.forEach((listener) => {
+                    listener(update);
+                });
+            }
+
             async function buildBadgeIndex() {
                 const currentPage = getCurrentPageNumber();
                 const detectedMaxPage = Math.max(
@@ -915,16 +924,29 @@
                     getMaxPageFromPagination() || 1
                 );
                 const maxPage = Math.min(detectedMaxPage, MAX_PAGES);
-                const badges = [];
-                let failedPages = 0;
+                const index = {
+                    badges: [],
+                    failedPages: 0,
+                    loadingPage: null,
+                    maxPage,
+                    processedPages: 0,
+                    truncated: detectedMaxPage > MAX_PAGES,
+                };
+
+                buildingBadgeIndex = index;
 
                 for (let page = 1; page <= maxPage; page += 1) {
-                    if (input.value.trim()) {
-                        searchStatus.textContent =
-                            `Loading owned badges: page ${page} of ${maxPage}...`;
-                    }
+                    index.loadingPage = page;
+                    notifyBadgeIndexProgress({
+                        badges: [],
+                        index,
+                        loading: true,
+                        page,
+                        snapshot: false,
+                    });
 
                     let pageRows;
+                    const pageBadges = [];
 
                     if (page === currentPage) {
                         pageRows = currentRows;
@@ -933,16 +955,28 @@
                     }
 
                     if (pageRows === null) {
-                        failedPages += 1;
-                        continue;
+                        index.failedPages += 1;
+                    } else {
+                        pageRows.forEach((row) => {
+                            const text = getOwnedBadgeSearchText(row);
+
+                            if (text) {
+                                const badge = { row, text };
+
+                                index.badges.push(badge);
+                                pageBadges.push(badge);
+                            }
+                        });
                     }
 
-                    pageRows.forEach((row) => {
-                        const text = getOwnedBadgeSearchText(row);
-
-                        if (text) {
-                            badges.push({ row, text });
-                        }
+                    index.loadingPage = null;
+                    index.processedPages = page;
+                    notifyBadgeIndexProgress({
+                        badges: pageBadges,
+                        index,
+                        loading: false,
+                        page,
+                        snapshot: false,
                     });
 
                     if (page < maxPage) {
@@ -950,49 +984,68 @@
                     }
                 }
 
-                return {
-                    badges,
-                    failedPages,
-                    maxPage,
-                    truncated: detectedMaxPage > MAX_PAGES,
-                };
+                return index;
             }
 
-            async function getBadgeIndex() {
+            async function getBadgeIndex(onProgress) {
                 if (indexedBadges) {
                     return indexedBadges;
                 }
 
-                if (!indexPromise) {
-                    indexPromise = buildBadgeIndex()
-                        .then((index) => {
-                            indexedBadges = index;
-                            return index;
-                        })
-                        .finally(() => {
-                            indexPromise = null;
-                        });
+                const buildAlreadyRunning = Boolean(indexPromise);
+
+                if (onProgress) {
+                    indexProgressListeners.add(onProgress);
                 }
 
-                return indexPromise;
+                try {
+                    if (!indexPromise) {
+                        indexPromise = buildBadgeIndex()
+                            .then((index) => {
+                                indexedBadges = index;
+                                return index;
+                            })
+                            .finally(() => {
+                                buildingBadgeIndex = null;
+                                indexPromise = null;
+                            });
+                    }
+
+                    if (
+                        buildAlreadyRunning &&
+                        buildingBadgeIndex &&
+                        onProgress
+                    ) {
+                        onProgress({
+                            badges: buildingBadgeIndex.badges,
+                            index: buildingBadgeIndex,
+                            loading: Boolean(
+                                buildingBadgeIndex.loadingPage
+                            ),
+                            page: buildingBadgeIndex.loadingPage ||
+                                buildingBadgeIndex.processedPages,
+                            snapshot: true,
+                        });
+                    }
+
+                    return await indexPromise;
+                } finally {
+                    if (onProgress) {
+                        indexProgressListeners.delete(onProgress);
+                    }
+                }
             }
 
-            function renderResults(index, rawQuery) {
-                const query = normalizeBadgeSearchText(rawQuery);
-                const termPatterns = query
-                    .split(' ')
-                    .filter(Boolean)
-                    .map(createBadgeSearchTermPattern);
-                const matches = index.badges.filter(({ text }) => (
-                    termPatterns.every((pattern) => pattern.test(text))
-                ));
+            function appendMatchingBadges(badges, termPatterns) {
+                let appended = 0;
 
-                removeResultClones();
-                currentRows.forEach((row) => {
-                    row.style.display = 'none';
-                });
+                badges.forEach(({ row, text }) => {
+                    if (
+                        !termPatterns.every((pattern) => pattern.test(text))
+                    ) {
+                        return;
+                    }
 
-                matches.forEach(({ row }) => {
                     const clone = row.cloneNode(true);
 
                     clone.removeAttribute('id');
@@ -1001,15 +1054,20 @@
                     activateDelayedBadgeArtwork(clone);
                     container.appendChild(clone);
                     resultClones.push(clone);
+                    appended += 1;
                 });
 
+                return appended;
+            }
+
+            function renderResultSummary(index, matchCount) {
                 // Steam can refresh its paging controls while results render.
                 // Re-query and enforce search mode after the clones are added.
                 setPaginationHidden(true);
 
-                const countText = matches.length === 1
+                const countText = matchCount === 1
                     ? '1 owned badge'
-                    : `${matches.length} owned badges`;
+                    : `${matchCount} owned badges`;
                 const sourcePageText = index.maxPage === 1
                     ? '1 source page'
                     : `${index.maxPage} source pages`;
@@ -1033,6 +1091,13 @@
 
             async function runSearch(rawQuery) {
                 const version = ++searchVersion;
+                const query = normalizeBadgeSearchText(rawQuery);
+                const termPatterns = query
+                    .split(' ')
+                    .filter(Boolean)
+                    .map(createBadgeSearchTermPattern);
+                let matchCount = 0;
+                let renderedFromProgress = false;
 
                 beforeSearch();
                 searchActive = true;
@@ -1043,7 +1108,49 @@
                 });
                 searchStatus.textContent = 'Loading owned badges...';
 
-                const index = await getBadgeIndex();
+                function handleProgress(update) {
+                    if (
+                        version !== searchVersion ||
+                        !input.value.trim()
+                    ) {
+                        return;
+                    }
+
+                    if (update.snapshot || !update.loading) {
+                        matchCount += appendMatchingBadges(
+                            update.badges,
+                            termPatterns
+                        );
+                        renderedFromProgress = true;
+                    }
+
+                    setPaginationHidden(true);
+
+                    const countText = matchCount === 1
+                        ? '1 owned badge'
+                        : `${matchCount} owned badges`;
+
+                    searchStatus.textContent = update.loading
+                        ? `Found ${countText} so far. Loading page ` +
+                            `${update.page} of ${update.index.maxPage}...`
+                        : `Found ${countText} so far. Searched page ` +
+                            `${update.page} of ${update.index.maxPage}...`;
+                }
+
+                let index;
+
+                try {
+                    index = await getBadgeIndex(handleProgress);
+                } catch (err) {
+                    if (
+                        version !== searchVersion ||
+                        !input.value.trim()
+                    ) {
+                        return;
+                    }
+
+                    throw err;
+                }
 
                 if (
                     version !== searchVersion ||
@@ -1052,12 +1159,20 @@
                     return;
                 }
 
-                renderResults(index, rawQuery);
+                if (!renderedFromProgress) {
+                    matchCount = appendMatchingBadges(
+                        index.badges,
+                        termPatterns
+                    );
+                }
+
+                renderResultSummary(index, matchCount);
             }
 
             input.addEventListener('input', () => {
                 window.clearTimeout(debounceTimer);
                 searchVersion += 1;
+                indexProgressListeners.clear();
 
                 if (!input.value.trim()) {
                     clearSearch(false);
@@ -1073,6 +1188,7 @@
                         );
 
                         if (input.value.trim()) {
+                            removeResultClones();
                             currentRows.forEach((row) => {
                                 row.style.display = '';
                             });
@@ -1163,12 +1279,12 @@
 
             actionGroup.id = 'spt-badge-actions';
             actionGroup.style.cssText =
-                'display:flex; align-items:center; gap:3px; flex:0 0 auto; margin-top:5px; margin-left:auto;';
+                'display:flex; align-items:center; gap:3px; flex:0 0 auto; margin-left:auto;';
 
             const statusGroup = document.createElement('div');
 
             statusGroup.style.cssText =
-                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:0 1 auto; min-width:0; margin-top:5px; flex-wrap:wrap;';
+                'display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:0 1 auto; min-width:0; flex-wrap:wrap;';
 
             const dropCounterGroup = document.createElement('span');
 

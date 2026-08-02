@@ -18,6 +18,13 @@ A userscript for Violentmonkey and Tampermonkey that adds tools to your Steam Co
 
 Only the five most recent releases are listed here.
 
+### 1.10.5 - 2026-08-02
+
+- **Changed:** Matching badges now appear progressively as each source page finishes loading, with a running result count.
+- **Changed:** The badge-search input now uses the same compact 22-pixel height as the adjacent badge controls.
+- **Improved:** Search terms match from the start of words instead of matching unrelated text fragments.
+- **Synchronized:** Userscript behavior matches the latest browser-extension `main` updates.
+
 ### 1.10.4 - 2026-07-31
 
 - **Changed:** Badge-search loading and result status now appears directly below the search field.
@@ -42,15 +49,11 @@ Only the five most recent releases are listed here.
 - **Fixed:** Badge artwork now loads in cloned cross-page search and card-drop results.
 - **Changed:** The badge search field is aligned to the right.
 
-### 1.10.0 - 2026-07-31
-
-- **Added:** Search owned badges by game or badge name across every paginated badge page, including on other users' profiles.
-
 ## Features
 
 ### Badge pages
 
-Badge search is available on every profile. It collects matches from every paginated result into one view and temporarily hides Steam's server-side pagination. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
+Badge search is available on every profile. It displays matches progressively as each paginated result is scanned and temporarily hides Steam's server-side pagination. Badge filtering and auto-crafting are available only on the signed-in account's own badge pages.
 
 - Search the profile's owned badges by game or badge name across all paginated results.
 - Count games with card drops remaining across every paginated badge result.
